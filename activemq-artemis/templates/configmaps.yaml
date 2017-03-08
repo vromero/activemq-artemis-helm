@@ -17,19 +17,19 @@ data:
         {{- $relname := printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
         <connectors>
           {{range $i,$t := until (int .Values.replicas)}}
-            <connector name="cluster-connection-{{$i}}">tcp://{{$relname}}-{{$i}}:61616</connector>
+            <connector name="cluster-connection-{{$i}}">tcp://{{$relname}}-{{$i}}.{{$relname}}.default.svc.cluster.local:61616</connector>
           {{end}}
         </connectors>
 
         <cluster-connections>
           <cluster-connection name="cluster1">
             <address>jms</address>
-            <connector-ref>artemis</connector-ref>
+            <connector-ref>cluster-connection-0</connector-ref>
             <retry-interval>1000</retry-interval>
             <message-load-balancing>ON_DEMAND</message-load-balancing>
             <max-hops>1</max-hops>
 
-            <static-connectors>
+            <static-connectors allow-direct-connections-only="true">
               {{range $i,$t := until (int .Values.replicas)}}
                 <connector-ref>cluster-connection-{{$i}}</connector-ref>
               {{end}}
