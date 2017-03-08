@@ -1,0 +1,28 @@
+apiVersion: v1
+entries:
+  activemq-artemis:
+  - created: 2017-03-08T16:30:14.419179945-03:00
+    description: a multi-protocol, embeddable, very high performance, clustered, asynchronous
+      messaging system.
+    digest: 9749d3332e2163bb441d4fffe75184f179c4515dfadcd6eec2dc58c3f52a175c
+    engine: gotpl
+    home: https://activemq.apache.org/artemis/
+    icon: https://activemq.apache.org/artemis/images/activemq-logo.png
+    keywords:
+    - activemq
+    - artemis
+    - messaging
+    - mom
+    - amqp
+    - jms
+    maintainers:
+    - email: victor.romero@gmail.com
+      name: Victor Romero
+    name: activemq-artemis
+    sources:
+    - https://github.com/kubernetes/charts
+    - https://github.com/apache/activemq-artemis
+    urls:
+    - https://vromero.github.io/charts/activemq-artemis-0.0.1.tgz
+    version: 0.0.1
+generated: 2017-03-08T16:30:14.418574063-03:00

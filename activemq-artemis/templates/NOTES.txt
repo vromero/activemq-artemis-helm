@@ -1,0 +1,15 @@
+ActiveMQ Artemis can be accessed via ports:
+
+ - http: 8161
+ - core: 61616
+ - hornetq: 5445
+ - mqtt: 1881
+ - stomp: 61613
+
+On the following DNS name from within your cluster:
+
+ - {{ template "fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+
+To get your password run:
+
+    kubectl get secret --namespace {{ .Release.Namespace }} {{ template "fullname" . }} -o jsonpath="{.data.artemis-password}" | base64 --decode; echo

@@ -1,0 +1,85 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  serviceName: {{ template "fullname" . }}
+  replicas: {{ .Values.replicas }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+      annotations:
+        pod.beta.kubernetes.io/init-containers: '[
+              {
+                  "name": "remove-lost-found",
+                  "image": "busybox:1.25.0",
+                  "command": ["rm", "-fr", "/var/lib/artemis/data/lost+found"],
+                  "volumeMounts": [
+                      {
+                          "name": "data",
+                          "mountPath": "/var/lib/artemis/data"
+                      }
+                  ],
+                  "imagePullPolicy": {{ .Values.imagePullPolicy | quote }}
+              }
+          ]'
+    spec:
+      containers:
+      - name: {{ template "fullname" . }}
+        image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        env:
+        - name: ARTEMIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "fullname" . }}
+              key: artemis-password
+        - name: ARTEMIS_USERNAME
+          value: {{ default "artemis" .Values.artemisUser | quote }}
+        ports:
+        - name: http
+          containerPort: 8161
+        - name: core
+          containerPort: 61616
+        - name: hornetq
+          containerPort: 5445
+        - name: mqtt
+          containerPort: 1883
+        - name: stomp
+          containerPort: 61613
+        livenessProbe:
+          httpGet:
+            path: /jolokia/
+            port: http
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /jolokia/
+            port: http
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/artemis/data
+        - name: config-override
+          mountPath: /var/lib/artemis/etc-override
+      volumes:
+      - name: config-override
+        configMap:
+          name: {{ template "fullname" . }}
+      - name: data
+      {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ template "fullname" . }}
+      {{- else }}
+        emptyDir: {}
+      {{- end -}}

@@ -1,0 +1,19 @@
+name: activemq-artemis
+version: 0.0.1
+description: a multi-protocol, embeddable, very high performance, clustered, asynchronous messaging system.
+keywords:
+- activemq
+- artemis
+- messaging
+- mom
+- amqp
+- jms
+home: https://activemq.apache.org/artemis/
+icon: https://activemq.apache.org/artemis/images/activemq-logo.png
+sources:
+- https://github.com/kubernetes/charts
+- https://github.com/apache/activemq-artemis
+maintainers:
+- name: Victor Romero
+  email: victor.romero@gmail.com
+engine: gotpl

@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+data:
+  broker.xml: |
+    <configuration xmlns="urn:activemq"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+
+      <core xmlns="urn:activemq:core">
+
+        <cluster-user>exampleUser</cluster-user>
+        <cluster-password>secret</cluster-password>
+
+        {{- $name := default .Chart.Name .Values.nameOverride -}}
+        {{- $relname := printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+        <connectors>
+          {{range $i,$t := until (int .Values.replicas)}}
+            <connector name="cluster-connection-{{$i}}">tcp://{{$relname}}-{{$i}}:61616</connector>
+          {{end}}
+        </connectors>
+
+        <cluster-connections>
+          <cluster-connection name="cluster1">
+            <address>jms</address>
+            <connector-ref>artemis</connector-ref>
+            <retry-interval>1000</retry-interval>
+            <message-load-balancing>ON_DEMAND</message-load-balancing>
+            <max-hops>1</max-hops>
+
+            <static-connectors>
+              {{range $i,$t := until (int .Values.replicas)}}
+                <connector-ref>cluster-connection-{{$i}}</connector-ref>
+              {{end}}
+            </static-connectors>
+
+         </cluster-connection>
+       </cluster-connections>
+
+       <ha-policy>
+         <replication>
+           <master>
+             <!--we need this for auto failback-->
+             <check-for-live-server>true</check-for-live-server>
+           </master>
+           <!--slave/-->
+         </replication>
+       </ha-policy>
+
+      </core>
+
+    </configuration>
