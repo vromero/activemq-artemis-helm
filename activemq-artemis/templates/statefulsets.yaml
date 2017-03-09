@@ -27,6 +27,22 @@ spec:
                       }
                   ],
                   "imagePullPolicy": {{ .Values.imagePullPolicy | quote }}
+              },
+              {
+                  "name": "configure-cluster",
+                  "image": "vromero/activemq-artemis:{{ .Values.imageTag }}",
+                  "command": ["/bin/bash", "/var/lib/artemis/etc-override-template/configure-cluster.sh"],
+                  "volumeMounts": [
+                      {
+                          "name": "config-override-template",
+                          "mountPath": "/var/lib/artemis/etc-override-template"
+                      },
+                      {
+                          "name": "config-override",
+                          "mountPath": "/var/lib/artemis/etc-override"
+                      }
+                  ],
+                  "imagePullPolicy": {{ .Values.imagePullPolicy | quote }}
               }
           ]'
     spec:
@@ -72,8 +88,12 @@ spec:
           mountPath: /var/lib/artemis/data
         - name: config-override
           mountPath: /var/lib/artemis/etc-override
+        - name: config-override-template
+          mountPath: /var/lib/artemis/etc-override-template
       volumes:
       - name: config-override
+        emptyDir: {}
+      - name: config-override-template
         configMap:
           name: {{ template "fullname" . }}
       - name: data

@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: {{ template "fullname" . }}
 data:
-  broker.xml: |
+  broker-template.xml: |
     <configuration xmlns="urn:activemq"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
@@ -17,21 +17,21 @@ data:
         {{- $relname := printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
         <connectors>
           {{range $i,$t := until (int .Values.replicas)}}
-            <connector name="cluster-connection-{{$i}}">tcp://{{$relname}}-{{$i}}.{{$relname}}.default.svc.cluster.local:61616</connector>
+            <connector name="{{$relname}}-{{$i}}">tcp://{{$relname}}-{{$i}}.{{$relname}}.default.svc.cluster.local:61616</connector>
           {{end}}
         </connectors>
 
         <cluster-connections>
-          <cluster-connection name="cluster1">
+          <cluster-connection name="replication-cluster">
             <address>jms</address>
-            <connector-ref>cluster-connection-0</connector-ref>
+            <connector-ref>{{$relname}}-0</connector-ref>
             <retry-interval>1000</retry-interval>
             <message-load-balancing>ON_DEMAND</message-load-balancing>
             <max-hops>1</max-hops>
 
             <static-connectors allow-direct-connections-only="true">
               {{range $i,$t := until (int .Values.replicas)}}
-                <connector-ref>cluster-connection-{{$i}}</connector-ref>
+                <connector-ref>{{$relname}}-{{$i}}</connector-ref>
               {{end}}
             </static-connectors>
 
@@ -42,7 +42,7 @@ data:
          <replication>
            <master>
              <!--we need this for auto failback-->
-             <check-for-live-server>true</check-for-live-server>
+             <check-for-live-server>false</check-for-live-server>
            </master>
            <!--slave/-->
          </replication>
@@ -51,3 +51,38 @@ data:
       </core>
 
     </configuration>
+
+  configure-cluster.xslt: |
+    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+      xmlns:activemq="urn:activemq" xmlns:jms="urn:activemq:jms" xmlns:core="urn:activemq:core">
+
+        <xsl:output omit-xml-declaration="yes"/>
+
+        <xsl:param name="hostname" />
+
+        <xsl:template match="node()|@*">
+          <xsl:copy>
+             <xsl:apply-templates select="node()|@*"/>
+          </xsl:copy>
+        </xsl:template>
+
+        <xsl:template match="//core:core/core:cluster-connections/core:cluster-connection/core:connector-ref">
+          <core:connector-ref><xsl:value-of select="$hostname" /></core:connector-ref>
+        </xsl:template>
+
+        <xsl:template match="//core:core/core:cluster-connections/core:cluster-connection/core:static-connectors/core:connector-ref">
+          <xsl:choose>
+            <xsl:when test="text()=$hostname"/>
+            <xsl:otherwise>
+              <xsl:copy>
+                <xsl:apply-templates select="@*|node()"/>
+              </xsl:copy>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:template>
+
+    </xsl:stylesheet>
+
+  configure-cluster.sh: |
+    cp /var/lib/artemis/etc-override-template/* /var/lib/artemis/etc-override
+    xmlstarlet tr /var/lib/artemis/etc-override-template/configure-cluster.xslt -s hostname=$(hostname) /var/lib/artemis/etc-override-template/broker-template.xml > /var/lib/artemis/etc-override/broker.xml
