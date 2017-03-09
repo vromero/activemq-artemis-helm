@@ -10,6 +10,8 @@ data:
 
       <core xmlns="urn:activemq:core">
 
+        <jmx-management-enabled>true</jmx-management-enabled>
+
         <cluster-user>exampleUser</cluster-user>
         <cluster-password>secret</cluster-password>
 
@@ -26,7 +28,12 @@ data:
             <address>jms</address>
             <connector-ref>{{$relname}}-0</connector-ref>
             <retry-interval>1000</retry-interval>
-            <message-load-balancing>ON_DEMAND</message-load-balancing>
+            <retry-interval-multiplier>1.1</retry-interval-multiplier>
+            <max-retry-interval>5000</max-retry-interval>
+            <initial-connect-attempts>-1</initial-connect-attempts>
+            <reconnect-attempts>-1</reconnect-attempts>
+
+            <message-load-balancing>OFF</message-load-balancing>
             <max-hops>1</max-hops>
 
             <static-connectors allow-direct-connections-only="true">
@@ -44,7 +51,6 @@ data:
              <!--we need this for auto failback-->
              <check-for-live-server>false</check-for-live-server>
            </master>
-           <!--slave/-->
          </replication>
        </ha-policy>
 
@@ -54,7 +60,8 @@ data:
 
   configure-cluster.xslt: |
     <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-      xmlns:activemq="urn:activemq" xmlns:jms="urn:activemq:jms" xmlns:core="urn:activemq:core">
+      xmlns:activemq="urn:activemq" xmlns:jms="urn:activemq:jms" xmlns:core="urn:activemq:core"
+      exclude-result-prefixes="activemq jms core">
 
         <xsl:output omit-xml-declaration="yes"/>
 
@@ -77,6 +84,19 @@ data:
               <xsl:copy>
                 <xsl:apply-templates select="@*|node()"/>
               </xsl:copy>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:template>
+
+        <xsl:template match="//core:core/core:ha-policy/core:replication/core:master">
+          <xsl:choose>
+            <xsl:when test="'-0' = substring($hostname, string-length($hostname) - 1)">
+                <core:master>
+                  <core:check-for-live-server>true</core:check-for-live-server>
+                </core:master>
+            </xsl:when>
+            <xsl:otherwise>
+              <core:slave/>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:template>
