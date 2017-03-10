@@ -90,9 +90,14 @@ spec:
           mountPath: /var/lib/artemis/etc-override
         - name: config-override-template
           mountPath: /var/lib/artemis/etc-override-template
+        - name: tools
+          mountPath: /opt/tools
       volumes:
       - name: config-override
         emptyDir: {}
+      - name: tools
+        configMap:
+          name: tools-{{ template "fullname" . }}
       - name: config-override-template
         configMap:
           name: {{ template "fullname" . }}

@@ -106,3 +106,13 @@ data:
   configure-cluster.sh: |
     cp /var/lib/artemis/etc-override-template/* /var/lib/artemis/etc-override
     xmlstarlet tr /var/lib/artemis/etc-override-template/configure-cluster.xslt -s hostname=$(hostname) /var/lib/artemis/etc-override-template/broker-template.xml > /var/lib/artemis/etc-override/broker.xml
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tools-{{ template "fullname" . }}
+data:
+  is-backup.sh: |
+    curl -s http://localhost:8161/jolokia/read/org.apache.activemq.artemis:brokerName=%220.0.0.0%22,module=Core,serviceType=Server,type=Broker/Backup | jq .value

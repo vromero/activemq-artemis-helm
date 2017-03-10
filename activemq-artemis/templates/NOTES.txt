@@ -13,3 +13,7 @@ On the following DNS name from within your cluster:
 To get your password run:
 
     kubectl get secret --namespace {{ .Release.Namespace }} {{ template "fullname" . }} -o jsonpath="{.data.artemis-password}" | base64 --decode; echo
+
+To get local ports:
+
+    minikube service --namespace {{ .Release.Namespace }} --url lb-{{ template "fullname" . }}

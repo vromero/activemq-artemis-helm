@@ -4,7 +4,7 @@ metadata:
   annotations:
     # Make sure DNS is resolvable during initialization.
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
-  name: {{ template "fullname" . }}
+  name: headless-{{ template "fullname" . }}
   labels:
     app: {{ template "fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
@@ -28,5 +28,40 @@ spec:
     port: 61613
     targetPort: stomp
   clusterIP: None
+  selector:
+    app: {{ template "fullname" . }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    # Make sure DNS is resolvable during initialization.
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  name: lb-{{ template "fullname" . }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  ports:
+  - name: http
+    port: 8161
+    targetPort: http
+  - name: core
+    port: 61616
+    targetPort: core
+  - name: hornetq
+    port: 5445
+    targetPort: hornetq
+  - name: mqtt
+    port: 1883
+    targetPort: mqtt
+  - name: stomp
+    port: 61613
+    targetPort: stomp
+  type: LoadBalancer
   selector:
     app: {{ template "fullname" . }}
