@@ -4,7 +4,7 @@ metadata:
   annotations:
     # Make sure DNS is resolvable during initialization.
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
-  name: headless-{{ template "fullname" . }}
+  name: {{ template "fullname" . }}
   labels:
     app: {{ template "fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
