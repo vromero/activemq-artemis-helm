@@ -60,6 +60,8 @@ spec:
               key: artemis-password
         - name: ARTEMIS_USERNAME
           value: {{ default "artemis" .Values.artemisUser | quote }}
+        - name: ARTEMIS_PERF_JOURNAL
+          value: {{ default "AUTO" .Values.persistence.testJournalPerformance | quote }}
         ports:
         - name: http
           containerPort: 8161
