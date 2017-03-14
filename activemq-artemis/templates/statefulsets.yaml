@@ -18,8 +18,20 @@ spec:
         pod.beta.kubernetes.io/init-containers: '[
               {
                   "name": "remove-lost-found",
-                  "image": "busybox:1.25.0",
+                  "image": "vromero/activemq-artemis:{{ .Values.imageTag }}",
                   "command": ["rm", "-fr", "/var/lib/artemis/data/lost+found"],
+                  "volumeMounts": [
+                      {
+                          "name": "data",
+                          "mountPath": "/var/lib/artemis/data"
+                      }
+                  ],
+                  "imagePullPolicy": {{ .Values.imagePullPolicy | quote }}
+              },
+              {
+                  "name": "set-volume-permissions",
+                  "image": "vromero/activemq-artemis:{{ .Values.imageTag }}",
+                  "command": ["chown", "-R", "artemis.artemis", "/var/lib/artemis/data"],
                   "volumeMounts": [
                       {
                           "name": "data",
