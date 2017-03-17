@@ -3,7 +3,11 @@ kind: ConfigMap
 metadata:
   name: {{ template "fullname" . }}
 data:
-  broker-template.xml: |
+  {{- range $key, $val:= .Values.brokers }}
+  {{ $key }}: |
+    {{ $val }}
+  {{- end }}
+  template.xml: |
     <configuration xmlns="urn:activemq"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
@@ -11,7 +15,6 @@ data:
       <core xmlns="urn:activemq:core">
 
         <jmx-management-enabled>true</jmx-management-enabled>
-
         <cluster-user>exampleUser</cluster-user>
         <cluster-password>secret</cluster-password>
 
@@ -104,8 +107,8 @@ data:
     </xsl:stylesheet>
 
   configure-cluster.sh: |
-    cp /var/lib/artemis/etc-override-template/* /var/lib/artemis/etc-override
-    xmlstarlet tr /var/lib/artemis/etc-override-template/configure-cluster.xslt -s hostname=$(hostname) /var/lib/artemis/etc-override-template/broker-template.xml > /var/lib/artemis/etc-override/broker.xml
+    cp /var/lib/artemis/etc-override-template/broker-* /var/lib/artemis/etc-override
+    xmlstarlet tr /var/lib/artemis/etc-override-template/configure-cluster.xslt -s hostname=$(hostname) /var/lib/artemis/etc-override-template/template.xml > /var/lib/artemis/etc-override/broker-00.xml
 
 ---
 
