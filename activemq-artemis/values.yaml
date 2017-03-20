@@ -1,7 +1,7 @@
 ## activemq-artemis image version
 ## ref: https://hub.docker.com/r/vromero/activemq-artemis/tags
 ##
-imageTag: "1.6.0"
+imageTag: "latest"
 
 ## Specify password for root user
 ##
