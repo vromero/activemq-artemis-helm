@@ -15,18 +15,9 @@ spec:
   - name: http
     port: 8161
     targetPort: http
-  - name: core
-    port: 61616
-    targetPort: core
-  - name: hornetq
-    port: 5445
-    targetPort: hornetq
-  - name: mqtt
-    port: 1883
-    targetPort: mqtt
-  - name: stomp
-    port: 61613
-    targetPort: stomp
+  - name: amqp
+    port: 5672
+    targetPort: amqp
   clusterIP: None
   selector:
     app: {{ template "fullname" . }}
@@ -50,18 +41,9 @@ spec:
   - name: http
     port: 8161
     targetPort: http
-  - name: core
-    port: 61616
-    targetPort: core
-  - name: hornetq
-    port: 5445
-    targetPort: hornetq
-  - name: mqtt
-    port: 1883
-    targetPort: mqtt
-  - name: stomp
-    port: 61613
-    targetPort: stomp
+  - name: amqp
+    port: 5672
+    targetPort: amqp
   type: LoadBalancer
   selector:
     app: {{ template "fullname" . }}
