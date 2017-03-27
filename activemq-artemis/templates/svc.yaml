@@ -33,12 +33,16 @@ metadata:
   annotations:
     # Make sure DNS is resolvable during initialization.
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    {{ if .Values.domainName }}
+    domainName: {{ .Values.domainName }}
+    {{ end }}
   name: lb-{{ template "fullname" . }}
   labels:
     app: {{ template "fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
+    dns: route53
 spec:
   ports:
   - name: http
@@ -53,3 +57,26 @@ spec:
   type: LoadBalancer
   selector:
     app: {{ template "fullname" . }}
+
+{{ if .Values.domainName }}
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: route53-kubernetes
+  namespace: kube-system
+  labels:
+    app: route53-kubernetes
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: route53-kubernetes
+    spec:
+      containers:
+        - image: quay.io/molecule/route53-kubernetes:v1.3.0
+          name: route53-kubernetes
+{{ end }}
