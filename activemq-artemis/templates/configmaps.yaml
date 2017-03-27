@@ -20,9 +20,10 @@ data:
 
         {{- $name := default .Chart.Name .Values.nameOverride -}}
         {{- $relname := printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+        {{- $namespace := .Release.Namespace -}}
         <connectors>
           {{range $i,$t := until (int .Values.replicas)}}
-            <connector name="{{$relname}}-{{$i}}">tcp://{{$relname}}-{{$i}}.{{$relname}}.default.svc.cluster.local:61616</connector>
+            <connector name="{{$relname}}-{{$i}}">tcp://{{$relname}}-{{$i}}.{{$relname}}.{{$namespace}}.svc.cluster.local:61616</connector>
           {{end}}
         </connectors>
 
