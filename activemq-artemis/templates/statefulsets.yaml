@@ -79,12 +79,8 @@ spec:
           containerPort: 8161
         - name: core
           containerPort: 61616
-        - name: hornetq
-          containerPort: 5445
-        - name: mqtt
-          containerPort: 1883
-        - name: stomp
-          containerPort: 61613
+        - name: amqp
+          containerPort: 5672
         livenessProbe:
           httpGet:
             path: /jolokia/
