@@ -82,14 +82,12 @@ spec:
         - name: amqp
           containerPort: 5672
         livenessProbe:
-          httpGet:
-            path: /jolokia/
+          tcpSocket:
             port: http
           initialDelaySeconds: 10
           periodSeconds: 10
         readinessProbe:
-          httpGet:
-            path: /jolokia/
+          tcpSocket:
             port: http
           initialDelaySeconds: 10
           periodSeconds: 10

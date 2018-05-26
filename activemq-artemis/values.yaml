@@ -1,17 +1,12 @@
 ## activemq-artemis image version
 ## ref: https://hub.docker.com/r/vromero/activemq-artemis/tags
 ##
-imageTag: "latest"
-
-## Specify password for root user
-##
-## Default: random 10 character string
-# mysqlRootPassword: testing
+imageTag: "2.6.0-alpine"
 
 ## Create a database user
 ##
-# artemisUser:
-# artemisPassword:
+artemisUser: artemis
+artemisPassword: simetraehcapa
 
 ## Specify an imagePullPolicy (Required)
 ## It's recommended to change this to 'Always' if the image tag is 'latest'
