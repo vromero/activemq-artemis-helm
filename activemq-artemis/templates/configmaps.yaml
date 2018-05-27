@@ -8,11 +8,8 @@ data:
     {{ $val }}
   {{- end }}
   template.xml: |
-    <configuration xmlns="urn:activemq"
-                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
-
-      <core xmlns="urn:activemq:core">
+    <configuration xmlns="urn:activemq" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+      <core xmlns="urn:activemq:core" xsi:schemaLocation="urn:activemq:core ">
 
         <jmx-management-enabled>true</jmx-management-enabled>
         <cluster-user>exampleUser</cluster-user>
@@ -108,7 +105,7 @@ data:
     </xsl:stylesheet>
 
   configure-cluster.sh: |
-    cp /var/lib/artemis/etc-override-template/broker-* /var/lib/artemis/etc-override
+    cp /var/lib/artemis/etc-override-template/broker-* /var/lib/artemis/etc-override | true
     xmlstarlet tr /var/lib/artemis/etc-override-template/configure-cluster.xslt -s hostname=$(hostname) /var/lib/artemis/etc-override-template/template.xml > /var/lib/artemis/etc-override/broker-00.xml
 
 ---

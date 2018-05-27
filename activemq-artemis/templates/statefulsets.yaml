@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ template "fullname" . }}
@@ -10,54 +10,44 @@ metadata:
 spec:
   serviceName: {{ template "fullname" . }}
   replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}
+      chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+      release: "{{ .Release.Name }}"
+      heritage: "{{ .Release.Service }}"    
   template:
     metadata:
       labels:
         app: {{ template "fullname" . }}
-      annotations:
-        pod.beta.kubernetes.io/init-containers: '[
-              {
-                  "name": "remove-lost-found",
-                  "image": "vromero/activemq-artemis:{{ .Values.imageTag }}",
-                  "command": ["rm", "-fr", "/var/lib/artemis/data/lost+found"],
-                  "volumeMounts": [
-                      {
-                          "name": "data",
-                          "mountPath": "/var/lib/artemis/data"
-                      }
-                  ],
-                  "imagePullPolicy": {{ .Values.imagePullPolicy | quote }}
-              },
-              {
-                  "name": "set-volume-permissions",
-                  "image": "vromero/activemq-artemis:{{ .Values.imageTag }}",
-                  "command": ["chown", "-R", "artemis.artemis", "/var/lib/artemis/data"],
-                  "volumeMounts": [
-                      {
-                          "name": "data",
-                          "mountPath": "/var/lib/artemis/data"
-                      }
-                  ],
-                  "imagePullPolicy": {{ .Values.imagePullPolicy | quote }}
-              },
-              {
-                  "name": "configure-cluster",
-                  "image": "vromero/activemq-artemis:{{ .Values.imageTag }}",
-                  "command": ["/bin/bash", "/var/lib/artemis/etc-override-template/configure-cluster.sh"],
-                  "volumeMounts": [
-                      {
-                          "name": "config-override-template",
-                          "mountPath": "/var/lib/artemis/etc-override-template"
-                      },
-                      {
-                          "name": "config-override",
-                          "mountPath": "/var/lib/artemis/etc-override"
-                      }
-                  ],
-                  "imagePullPolicy": {{ .Values.imagePullPolicy | quote }}
-              }
-          ]'
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
     spec:
+      initContainers:
+      - name: remove-lost-found
+        image: "openjdk:8-jre-alpine"
+        imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+        command: ["rm", "-fr", "/var/lib/artemis/data/lost+found"]
+        volumeMounts:
+          - name: "data"
+            mountPath: "/var/lib/artemis/data"
+      #- name: set-volume-permissions
+      #  image: "openjdk:8-jre-alpine"
+      #  imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+      #  command: ["chown", "-R", "artemis.artemis", "/var/lib/artemis/data"]
+      #  volumeMounts:
+      #    - name: "data"
+      #      mountPath: "/var/lib/artemis/data"
+      - name: configure-cluster
+        image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+        command: ["/bin/sh", "/var/lib/artemis/etc-override-template/configure-cluster.sh"]
+        volumeMounts:
+          - name: "config-override-template"
+            mountPath: "/var/lib/artemis/etc-override-template"
+          - name: "config-override"
+            mountPath: "/var/lib/artemis/etc-override"
       containers:
       - name: {{ template "fullname" . }}
         image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
@@ -81,6 +71,8 @@ spec:
           containerPort: 61616
         - name: amqp
           containerPort: 5672
+        - name: jmxexporter
+          containerPort: 9404
         livenessProbe:
           tcpSocket:
             port: http

@@ -1,7 +1,7 @@
 ## activemq-artemis image version
 ## ref: https://hub.docker.com/r/vromero/activemq-artemis/tags
 ##
-imageTag: "2.6.0-alpine"
+imageTag: "2.6.0"
 
 ## Create a database user
 ##
@@ -15,7 +15,7 @@ artemisPassword: simetraehcapa
 #imagePullPolicy: IfNotPresent
 imagePullPolicy: Always
 
-replicas: 2
+replicas: 4
 
 ## Persist data to a persitent volume
 persistence:
