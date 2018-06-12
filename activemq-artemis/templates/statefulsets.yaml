@@ -10,6 +10,7 @@ metadata:
 spec:
   serviceName: {{ template "fullname" . }}
   replicas: {{ .Values.replicas }}
+  podManagementPolicy: Parallel
   selector:
     matchLabels:
       app: {{ template "fullname" . }}
@@ -24,21 +25,8 @@ spec:
         release: "{{ .Release.Name }}"
         heritage: "{{ .Release.Service }}"
     spec:
+      serviceAccountName: {{ template "fullname" . }}
       initContainers:
-      - name: remove-lost-found
-        image: "openjdk:8-jre-alpine"
-        imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
-        command: ["rm", "-fr", "/var/lib/artemis/data/lost+found"]
-        volumeMounts:
-          - name: "data"
-            mountPath: "/var/lib/artemis/data"
-      #- name: set-volume-permissions
-      #  image: "openjdk:8-jre-alpine"
-      #  imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
-      #  command: ["chown", "-R", "artemis.artemis", "/var/lib/artemis/data"]
-      #  volumeMounts:
-      #    - name: "data"
-      #      mountPath: "/var/lib/artemis/data"
       - name: configure-cluster
         image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
         imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
@@ -73,6 +61,12 @@ spec:
           containerPort: 5672
         - name: jmxexporter
           containerPort: 9404
+        - name: jgroupsa
+          containerPort: 7500
+        - name: jgroupsb
+          containerPort: 7800
+        - name: jgroupsc
+          containerPort: 8888  
         livenessProbe:
           tcpSocket:
             port: http
@@ -90,11 +84,17 @@ spec:
           mountPath: /var/lib/artemis/etc-override
         - name: config-override-template
           mountPath: /var/lib/artemis/etc-override-template
+        - name: jgroups
+          mountPath: /var/lib/artemis/etc/jgroups.xml
+          subPath: jgroups.xml
         - name: tools
           mountPath: /opt/tools
       volumes:
       - name: config-override
         emptyDir: {}
+      - name: jgroups
+        configMap:
+          name: {{ template "fullname" . }}
       - name: tools
         configMap:
           name: tools-{{ template "fullname" . }}
