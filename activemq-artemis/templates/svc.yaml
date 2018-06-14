@@ -27,6 +27,8 @@ spec:
 
 ---
 
+{{- if .Values.loadbalancer.enabled }}
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -53,3 +55,5 @@ spec:
   type: LoadBalancer
   selector:
     app: {{ template "fullname" . }}
+
+{{- end }}

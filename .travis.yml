@@ -1,0 +1,21 @@
+sudo: required
+
+env:
+- CHANGE_MINIKUBE_NONE_USER=true
+
+before_script:
+- curl -L https://storage.googleapis.com/kubernetes-helm/helm-v2.9.1-linux-amd64.tar.gz | tar xvz && chmod +x linux-amd64/helm && sudo mv linux-amd64/helm /usr/local/bin
+- curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.9.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+- curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.25.2/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+- docker run --rm jpetazzo/nsenter cat /nsenter > /tmp/nsenter 2> /dev/null; sudo cp /tmp/nsenter /usr/local/bin/; sudo chmod +x /usr/local/bin/nsenter; which nsenter
+- sudo minikube start --vm-driver=none --kubernetes-version=v1.9.0 
+- minikube update-context
+- JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 1; done
+- helm init --wait
+
+script:
+- helm install --wait --set loadbalancer.enabled=false --name my-release activemq-artemis
+- helm test my-release
+- kubectl get pods
+- kubectl get service
+- kubectl cluster-info dump
