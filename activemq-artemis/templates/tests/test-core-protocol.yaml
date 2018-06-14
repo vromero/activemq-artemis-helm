@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+
+metadata:
+  annotations:
+    "helm.sh/hook": test-success
+  name: "{{ .Release.Name }}-core-test"
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  containers:
+  - name: {{ .Release.Name }}-credentials-test
+    image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
+    env:
+      - name: ARTEMIS_HOST
+        value: {{ template "fullname" . }}
+      - name: ARTEMIS_PORT
+        value: "61616"
+      - name: ARTEMIS_USER
+        value: {{ default "" .Values.artemisUser | quote }}
+      - name: ARTEMIS_PASSWORD
+        value: {{ default "" .Values.artemisPassword | quote }}
+    command: ["sh", "-c", "./artemis producer --user ${ARTEMIS_USER} --password ${ARTEMIS_PASSWORD} --protocol core --url tcp://${ARTEMIS_HOST}:${ARTEMIS_PORT} --message-count 10000 --threads 10"]
+  restartPolicy: Never

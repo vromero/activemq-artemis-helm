@@ -16,6 +16,3 @@ before_script:
 script:
 - helm install --wait --set loadbalancer.enabled=false --name my-release activemq-artemis
 - helm test my-release
-- kubectl get pods
-- kubectl get service
-- kubectl cluster-info dump
