@@ -11,7 +11,6 @@ data:
     <configuration xmlns="urn:activemq" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
       <core xmlns="urn:activemq:core" xsi:schemaLocation="urn:activemq:core ">
 
-        <jmx-management-enabled>true</jmx-management-enabled>
         <cluster-user>exampleUser</cluster-user>
         <cluster-password>secret</cluster-password>
 
@@ -25,7 +24,7 @@ data:
         </connectors>
 
         <cluster-connections>
-          <cluster-connection name="replication-cluster">
+          <cluster-connection name="{{ template "fullname" . }}">
             <address>jms</address>
             <connector-ref>{{$relname}}-0</connector-ref>
             <retry-interval>1000</retry-interval>
@@ -117,3 +116,4 @@ metadata:
 data:
   is-backup.sh: |
     curl -s http://localhost:8161/jolokia/read/org.apache.activemq.artemis:brokerName=%220.0.0.0%22,module=Core,serviceType=Server,type=Broker/Backup | jq .value
+

@@ -1,7 +1,7 @@
 ## activemq-artemis image version
 ## ref: https://hub.docker.com/r/vromero/activemq-artemis/tags
 ##
-imageTag: "2.6.0"
+imageTag: "2.6.1"
 
 ## Create a database user
 ##
@@ -38,6 +38,6 @@ resources:
 
 
 # A load balander might confuse Minikube when installing with Helm and --wait
-# Probably this is only useful for minikube environments
+# Probably this is only useful for minikube environments and CI
 loadbalancer:
   enabled: true

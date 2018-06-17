@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Pod
+
+metadata:
+  annotations:
+    "helm.sh/hook": test-success
+  name: "{{ .Release.Name }}-cluster-formation"
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  volumes:
+    - name: tools-{{ template "fullname" . }}-cluster-formation
+      configMap:
+        name: tools-{{ template "fullname" . }}-cluster-formation
+  containers:
+  - name: {{ .Release.Name }}-cluster-formation
+    image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
+    env:
+      - name: ARTEMIS_HOST
+        value: {{ template "fullname" . }}
+      - name: ARTEMIS_PORT
+        value: "8161"
+      - name: ARTEMIS_USERNAME
+        value: {{ default "" .Values.artemisUser | quote }}
+      - name: ARTEMIS_PASSWORD
+        value: {{ default "" .Values.artemisPassword | quote }}
+    volumeMounts:
+      - name: tools-{{ template "fullname" . }}-cluster-formation
+        mountPath: /opt/tools
+    command: 
+      - "sh"
+      - "/opt/tools/cluster-formed.sh"
+  restartPolicy: Never
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tools-{{ template "fullname" . }}-cluster-formation
+data:
+  cluster-formed.sh: |
+    MEMBERS="$(curl -sq http://${ARTEMIS_USERNAME}:${ARTEMIS_PASSWORD}@${ARTEMIS_HOST}:${ARTEMIS_PORT}/console/jolokia/read/org.apache.activemq.artemis:broker=%22${ARTEMIS_HOST}-*%22,component=cluster-connections,name=%22{{ template "fullname" . }}%22/Topology | jq '.value | to_entries | first | .value.Topology' | sed -re 's/.*members=([0-9]+).*/\1/')"
+
+    if test "${MEMBERS}" = "{{ .Values.replicas }}"; then
+      echo OK 
+    else 
+       echo Number of cluster memers shall be equal to {{ .Values.replicas }} but found ${MEMBERS}
+       exit 1
+    fi
+
+
+
