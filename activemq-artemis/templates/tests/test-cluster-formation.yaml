@@ -1,3 +1,7 @@
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- $relname := printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- $namespace := .Release.Namespace -}}
+
 apiVersion: v1
 kind: Pod
 
@@ -20,7 +24,9 @@ spec:
     image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
     env:
       - name: ARTEMIS_HOST
-        value: {{ template "fullname" . }}
+        value: {{$relname}}-0.{{$relname}}.{{$namespace}}.svc.cluster.local
+      - name: ARTEMIS_HOST_SHORT
+        value: {{$relname}}-0
       - name: ARTEMIS_PORT
         value: "8161"
       - name: ARTEMIS_USERNAME
@@ -30,9 +36,7 @@ spec:
     volumeMounts:
       - name: tools-{{ template "fullname" . }}-cluster-formation
         mountPath: /opt/tools
-    command: 
-      - "sh"
-      - "/opt/tools/cluster-formed.sh"
+    command: ["sh", "/opt/tools/cluster-formed.sh"]
   restartPolicy: Never
 
 ---
@@ -43,12 +47,12 @@ metadata:
   name: tools-{{ template "fullname" . }}-cluster-formation
 data:
   cluster-formed.sh: |
-    MEMBERS="$(curl -sq http://${ARTEMIS_USERNAME}:${ARTEMIS_PASSWORD}@${ARTEMIS_HOST}:${ARTEMIS_PORT}/console/jolokia/read/org.apache.activemq.artemis:broker=%22${ARTEMIS_HOST}-*%22,component=cluster-connections,name=%22{{ template "fullname" . }}%22/Topology | jq '.value | to_entries | first | .value.Topology' | sed -re 's/.*members=([0-9]+).*/\1/')"
+    MEMBERS="$(curl -sq http://${ARTEMIS_USERNAME}:${ARTEMIS_PASSWORD}@${ARTEMIS_HOST}:${ARTEMIS_PORT}/console/jolokia/read/org.apache.activemq.artemis:broker=%22${ARTEMIS_HOST_SHORT}%22,component=cluster-connections,name=%22{{ .Release.Name }}%22/Topology | jq '.value' | sed -re 's/.*nodes=([0-9]+).*/\1/')"
 
     if test "${MEMBERS}" = "{{ .Values.replicas }}"; then
       echo OK 
     else 
-       echo Number of cluster memers shall be equal to {{ .Values.replicas }} but found ${MEMBERS}
+       echo Number of cluster nodes shall be equal to {{ .Values.replicas }} but found ${MEMBERS}
        exit 1
     fi
 

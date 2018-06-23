@@ -10,6 +10,7 @@ metadata:
 spec:
   serviceName: {{ template "fullname" . }}
   replicas: {{ .Values.replicas }}
+  podManagementPolicy: Parallel
   selector:
     matchLabels:
       app: {{ template "fullname" . }}
@@ -24,6 +25,8 @@ spec:
         release: "{{ .Release.Name }}"
         heritage: "{{ .Release.Service }}"
     spec:
+      strategy:
+        type: Recreate
       initContainers:
       - name: remove-lost-found
         image: "openjdk:8-jre-alpine"
