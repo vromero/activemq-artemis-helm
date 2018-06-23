@@ -46,53 +46,67 @@ data:
   template-master.xml: |
     <configuration xmlns="urn:activemq" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
       <core xmlns="urn:activemq:core" xsi:schemaLocation="urn:activemq:core ">
-       <ha-policy>
-         <replication>
-           <master>
-             <!--we need this for auto failback-->
-             <check-for-live-server>false</check-for-live-server>
-           </master>
-         </replication>
-       </ha-policy>
+        <ha-policy>
+          <replication>
+            <master>
+              <group-name>to-be-set-by-configure-cluster.sh</group-name>
+              <!--we need this for auto failback-->
+              <check-for-live-server>false</check-for-live-server>
+            </master>
+          </replication>
+        </ha-policy>
       </core>
     </configuration>
   
   template-slave.xml: |
     <configuration xmlns="urn:activemq" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
       <core xmlns="urn:activemq:core" xsi:schemaLocation="urn:activemq:core ">
-       <ha-policy>
-         <replication>
-           <slave/>
-         </replication>
-       </ha-policy>
+        <ha-policy>
+          <replication>
+            <slave>
+              <group-name>to-be-set-by-configure-cluster.sh</group-name>
+            </slave>
+          </replication>
+        </ha-policy>
       </core>
     </configuration>
 
   configure-cluster.sh: |
     set -e
+    HOST_GROUP_NAME=$(echo ${HOSTNAME} | sed -re 's/(.*)-[0-9]+/\1/')
     HOST_INDEX=$(echo ${HOSTNAME} | sed -re 's/.*-([0-9]+)/\1/')
     cp /var/lib/artemis/etc-override-template/template-common.xml /var/lib/artemis/etc-override/broker-10.xml
     echo Host index is ${HOST_INDEX}
     if [ "$(( HOST_INDEX % 2))" -eq 0 ]; then 
       echo Assigning node as master
       cp /var/lib/artemis/etc-override-template/template-master.xml /var/lib/artemis/etc-override/broker-11.xml 
+
+      GROUP_NAME=${HOST_GROUP_NAME}-$((${HOST_INDEX}))
+      echo Setting the group-name for master to ${GROUP_NAME}
+      xmlstarlet ed -L \
+      -N activemq="urn:activemq" \
+      -N core="urn:activemq:core" \
+      -u "/activemq:configuration/core:core/core:ha-policy/core:replication/core:master/core:group-name" \
+      -v "${GROUP_NAME}" /var/lib/artemis/etc-override/broker-11.xml
     else
       echo Assigning node as slave
       cp /var/lib/artemis/etc-override-template/template-slave.xml /var/lib/artemis/etc-override/broker-11.xml
+
+      GROUP_NAME=${HOST_GROUP_NAME}-$((${HOST_INDEX} - 1))
+      echo Setting the group-name for slave to ${GROUP_NAME}
+      xmlstarlet ed -L \
+      -N activemq="urn:activemq" \
+      -N core="urn:activemq:core" \
+      -u "/activemq:configuration/core:core/core:ha-policy/core:replication/core:slave/core:group-name" \
+      -v "${GROUP_NAME}" /var/lib/artemis/etc-override/broker-11.xml
     fi
     
     echo Setting the connector-ref
-    echo xmlstarlet ed -L \
-    -N activemq="urn:activemq" \
-    -N core="urn:activemq:core" \
-    -u "/activemq:configuration/core:core/core:cluster-connections/core:cluster-connection[@name='{{ .Release.Name }}']/core:connector-ref" \
-    -v "$(hostname)" /var/lib/artemis/etc-override/broker-10.xml
-    
     xmlstarlet ed -L \
-    -N activemq="urn:activemq" \
-    -N core="urn:activemq:core" \
-    -u "/activemq:configuration/core:core/core:cluster-connections/core:cluster-connection[@name='{{ .Release.Name }}']/core:connector-ref" \
-    -v "$(hostname)" /var/lib/artemis/etc-override/broker-10.xml
+      -N activemq="urn:activemq" \
+      -N core="urn:activemq:core" \
+      -u "/activemq:configuration/core:core/core:cluster-connections/core:cluster-connection[@name='{{ .Release.Name }}']/core:connector-ref" \
+      -v "$(hostname)" /var/lib/artemis/etc-override/broker-10.xml
 
 ---
 
