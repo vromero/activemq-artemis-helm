@@ -18,9 +18,7 @@ spec:
     image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
     env:
       - name: ARTEMIS_HOST
-        value: {{ include "artemis.fullname" . }}-0.{{ .Release.Namespace }}.svc.cluster.local
-      - name: ARTEMIS_HOST_SHORT
-        value: {{ .Release.Name }}-0
+        value: {{ include "artemis.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
       - name: ARTEMIS_PORT
         value: "8161"
       - name: ARTEMIS_USERNAME
@@ -41,12 +39,13 @@ metadata:
   name: tools-{{ include "artemis.fullname" . }}-cluster-formation
 data:
   cluster-formed.sh: |
-    MEMBERS="$(curl -sq http://${ARTEMIS_USERNAME}:${ARTEMIS_PASSWORD}@${ARTEMIS_HOST}:${ARTEMIS_PORT}/console/jolokia/read/org.apache.activemq.artemis:broker=%22${ARTEMIS_HOST_SHORT}%22,component=cluster-connections,name=%22{{ .Release.Name }}%22/Topology | jq '.value' | sed -re 's/.*nodes=([0-9]+).*/\1/')"
+    MEMBERS="$(curl -sq http://${ARTEMIS_USERNAME}:${ARTEMIS_PASSWORD}@${ARTEMIS_HOST}:${ARTEMIS_PORT}/console/jolokia/read/org.apache.activemq.artemis:broker=%22*%22,component=cluster-connections,name=%22*%22/Topology | jq '[.value[] | .Topology][0]' | sed -re 's/.*nodes=([0-9]+).*/\1/')"
 
-    if test "${MEMBERS}" = "{{ .Values.replicas }}"; then
+    EXPECTED_MEMBERS=$(( {{ .Values.replicas }} * 2))
+    if test "${MEMBERS}" = "${EXPECTED_MEMBERS}"; then
       echo OK 
     else 
-       echo Number of cluster nodes shall be equal to {{ .Values.replicas }} but found ${MEMBERS}
+       echo Number of cluster nodes shall be equal to ${EXPECTED_MEMBERS} but found ${MEMBERS}
        exit 1
     fi
 
