@@ -14,6 +14,6 @@ before_script:
 - helm init --wait
 
 script:
-- helm install --wait --set loadbalancer.enabled=false --name my-release activemq-artemis
+- helm install --wait --timeout 600 --set loadbalancer.enabled=false --name my-release activemq-artemis
 - travis_retry sleep 60 && helm test my-release
 
