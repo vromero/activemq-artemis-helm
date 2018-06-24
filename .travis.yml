@@ -15,7 +15,5 @@ before_script:
 
 script:
 - helm install --wait --set loadbalancer.enabled=false --name my-release activemq-artemis
-- sleep 30
-- helm test my-release
-- kubectl logs my-release-activemq-artemis-cluster-formation --namespace default
+- travis_retry sleep 60 && helm test my-release
 

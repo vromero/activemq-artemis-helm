@@ -13,9 +13,11 @@ spec:
     - name: tools-{{ include "artemis.fullname" . }}-cluster-formation
       configMap:
         name: tools-{{ include "artemis.fullname" . }}-cluster-formation
+  imagePullSecrets: {{ toYaml .Values.image.pullSecrets }}
   containers:
   - name: {{ .Release.Name }}-cluster-formation
-    image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
+    image: {{ template "artemis.image" . }}
+    imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
     env:
       - name: ARTEMIS_HOST
         value: {{ include "artemis.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local

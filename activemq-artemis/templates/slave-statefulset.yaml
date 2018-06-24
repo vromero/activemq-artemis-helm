@@ -28,8 +28,9 @@ spec:
         type: Recreate
       initContainers:
       - name: configure-cluster
-        image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
-        imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+        image: {{ template "artemis.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        imagePullSecrets: {{ toYaml .Values.image.pullSecrets }}
         command: ["/bin/sh", "/opt/configure-slave/configure-cluster.sh"]
         volumeMounts:
           - name: config-override
@@ -40,8 +41,8 @@ spec:
             mountPath: /opt/configure-slave
       containers:
       - name: {{ include "artemis.fullname" . }}
-        image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
-        imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+        image: {{ template "artemis.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}
         env:

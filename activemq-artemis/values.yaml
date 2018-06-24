@@ -1,19 +1,21 @@
-## activemq-artemis image version
-## ref: https://hub.docker.com/r/vromero/activemq-artemis/tags
-##
-imageTag: "2.6.1"
 
-## Create a database user
-##
+image:
+  # image.registry is the repository where the ActiveMQ Artemis image is stored
+  registry: docker.io
+  # image.repository is the ActiveMQ Artemis image name
+  repository: vromero/activemq-artemis
+  # image.tag is the ActiveMQ Artemis image's tag: https://hub.docker.com/r/vromero/activemq-artemis/tags
+  # tag: 2.6.2
+  # image.pullPolicy is the ActiveMQ Artemis image's pull policy
+  pullPolicy: Always
+  # image.pullSecrets optionally specify an array of imagePullSecrets.Secrets must be manually created in the namespace.
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  pullSecrets: []
+
+# artemisUser sets the artemis admin user name
 artemisUser: artemis
+# artemisPassword sets the artemis admin user password
 artemisPassword: simetraehcapa
-
-## Specify an imagePullPolicy (Required)
-## It's recommended to change this to 'Always' if the image tag is 'latest'
-## ref: http://kubernetes.io/docs/user-guide/images/#updating-images
-##
-#imagePullPolicy: IfNotPresent
-imagePullPolicy: Always
 
 replicas: 2
 

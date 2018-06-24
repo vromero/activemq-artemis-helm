@@ -8,9 +8,11 @@ metadata:
   labels:
 {{ include "artemis.labels.standard" . | indent 4 }}
 spec:
+  imagePullSecrets: {{ toYaml .Values.image.pullSecrets }}
   containers:
   - name: {{ .Release.Name }}-credentials-test
-    image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
+    image: {{ template "artemis.image" . }}
+    imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
     env:
       - name: ARTEMIS_HOST
         value: {{ include "artemis.fullname" . }}
