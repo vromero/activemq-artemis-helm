@@ -16,4 +16,4 @@ To get your password run:
 
 To get local ports:
 
-    minikube service --namespace {{ .Release.Namespace }} --url lb-{{ include "artemis.fullname" . }}
+    minikube service --namespace {{ .Release.Namespace }} --url {{ include "artemis.fullname" . }}

@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "artemis.fullname" . }}-configure-common
+  labels:
+{{ include "artemis.labels.standard" . | indent 4 }}
+data:
+
+  template-common.xml: |
+    <configuration xmlns="urn:activemq" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+      <core xmlns="urn:activemq:core" xsi:schemaLocation="urn:activemq:core ">
+
+        <cluster-user>exampleUser</cluster-user>
+        <cluster-password>secret</cluster-password>
+
+        {{- $name := default .Chart.Name .Values.nameOverride -}}
+        {{- $fullname := include "artemis.fullname" . -}}
+        {{- $releaseName := printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+        {{- $releaseNamespace := .Release.Namespace -}}
+        <connectors>
+          {{ range $i,$t := until (int .Values.replicas) }}
+            {{ range tuple "master" "slave" }}
+              <connector name="{{ $fullname }}-{{ . }}-{{ $i }}">tcp://{{ $fullname }}-{{ . }}-{{ $i }}.{{ $releaseName }}-{{ . }}.{{ $releaseNamespace }}.svc.cluster.local:61616</connector>  
+            {{ end }}
+          {{end}}
+        </connectors>
+
+        <cluster-connections>
+          <cluster-connection name="{{ $releaseName }}">
+            <address>jms</address>
+            <connector-ref>{{ $fullname }}-0</connector-ref>
+            <retry-interval>500</retry-interval>
+            <retry-interval-multiplier>1.1</retry-interval-multiplier>
+            <max-retry-interval>5000</max-retry-interval>
+            <initial-connect-attempts>-1</initial-connect-attempts>
+            <reconnect-attempts>-1</reconnect-attempts>
+
+            <message-load-balancing>OFF</message-load-balancing>
+            <max-hops>1</max-hops>
+
+            <static-connectors>
+              {{ range $i,$t := until (int .Values.replicas) }}
+                {{ range tuple "master" "slave" }}
+                  <connector-ref>{{ $fullname }}-{{ . }}-{{ $i }}</connector-ref>
+                {{ end }}
+              {{ end }}
+            </static-connectors>
+
+         </cluster-connection>
+       </cluster-connections>
+      </core>
+    </configuration>
+

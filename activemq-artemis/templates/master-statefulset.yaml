@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "artemis.fullname" . }}-master
+  annotations:
+{{ toYaml .Values.deployment.annotations | indent 4 }}
+  labels:
+{{ include "artemis.labels.standard" . | indent 4 }}
+spec:
+  serviceName: {{ include "artemis.fullname" . }}-master
+  replicas: {{ .Values.replicas }}
+  podManagementPolicy: Parallel
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: {{ template "artemis.name" . }}
+      release: {{ .Release.Name | quote }}    
+  template:
+    metadata:
+      name: {{ include "artemis.fullname" . }}
+      annotations:
+{{ toYaml .Values.replica.annotations | indent 8 }}
+      labels:
+        app: {{ template "artemis.name" . }}
+        release: {{ .Release.Name | quote }}
+    spec:
+      strategy:
+        type: Recreate
+      initContainers:
+      - name: configure-cluster
+        image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+        command: ["/bin/sh", "/opt/configure-master/configure-cluster.sh"]
+        volumeMounts:
+          - name: config-override
+            mountPath: /var/lib/artemis/etc-override
+          - name: configure-common
+            mountPath: /opt/configure-common
+          - name: configure-master
+            mountPath: /opt/configure-master
+      containers:
+      - name: {{ include "artemis.fullname" . }}
+        image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        env:
+        - name: ARTEMIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "artemis.fullname" . }}
+              key: artemis-password
+        - name: ARTEMIS_USERNAME
+          value: {{ default "artemis" .Values.artemisUser | quote }}
+        - name: ARTEMIS_PERF_JOURNAL
+          value: {{ default "AUTO" .Values.persistence.testJournalPerformance | quote }}
+        ports:
+        - name: http
+          containerPort: 8161
+        - name: core
+          containerPort: 61616
+        - name: amqp
+          containerPort: 5672
+        - name: jmxexporter
+          containerPort: 9404
+        livenessProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/artemis/data
+        - name: config-override
+          mountPath: /var/lib/artemis/etc-override
+        - name: configure-common
+          mountPath: /opt/configure-common
+        - name: configure-master
+          mountPath: /opt/configure-master
+      volumes:
+      - name: config-override
+        emptyDir: {}
+      - name: configure-common
+        configMap:
+          name: {{ include "artemis.fullname" . }}-configure-common
+      - name: configure-master
+        configMap:
+          name: {{ include "artemis.fullname" . }}-configure-master
+      - name: data
+      {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ include "artemis.fullname" . }}
+      {{- else }}
+        emptyDir: {}
+      {{- end -}}

@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "artemis.fullname" . }}
+  name: {{ include "artemis.fullname" . }}-slave
   annotations:
 {{ toYaml .Values.deployment.annotations | indent 4 }}
   labels:
 {{ include "artemis.labels.standard" . | indent 4 }}
 spec:
-  serviceName: {{ include "artemis.fullname" . }}
+  serviceName: {{ include "artemis.fullname" . }}-slave
   replicas: {{ .Values.replicas }}
   podManagementPolicy: Parallel
   revisionHistoryLimit: 10
@@ -27,29 +27,17 @@ spec:
       strategy:
         type: Recreate
       initContainers:
-      - name: remove-lost-found
-        image: "openjdk:8-jre-alpine"
-        imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
-        command: ["rm", "-fr", "/var/lib/artemis/data/lost+found"]
-        volumeMounts:
-          - name: "data"
-            mountPath: "/var/lib/artemis/data"
-      #- name: set-volume-permissions
-      #  image: "openjdk:8-jre-alpine"
-      #  imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
-      #  command: ["chown", "-R", "artemis.artemis", "/var/lib/artemis/data"]
-      #  volumeMounts:
-      #    - name: "data"
-      #      mountPath: "/var/lib/artemis/data"
       - name: configure-cluster
         image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
         imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
-        command: ["/bin/sh", "/var/lib/artemis/etc-override-template/configure-cluster.sh"]
+        command: ["/bin/sh", "/opt/configure-slave/configure-cluster.sh"]
         volumeMounts:
-          - name: "config-override-template"
-            mountPath: "/var/lib/artemis/etc-override-template"
-          - name: "config-override"
-            mountPath: "/var/lib/artemis/etc-override"
+          - name: config-override
+            mountPath: /var/lib/artemis/etc-override
+          - name: configure-common
+            mountPath: /opt/configure-common
+          - name: configure-slave
+            mountPath: /opt/configure-slave
       containers:
       - name: {{ include "artemis.fullname" . }}
         image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
@@ -90,19 +78,19 @@ spec:
           mountPath: /var/lib/artemis/data
         - name: config-override
           mountPath: /var/lib/artemis/etc-override
-        - name: config-override-template
-          mountPath: /var/lib/artemis/etc-override-template
-        - name: tools
-          mountPath: /opt/tools
+        - name: configure-common
+          mountPath: /opt/configure-common
+        - name: configure-slave
+          mountPath: /opt/configure-slave
       volumes:
       - name: config-override
         emptyDir: {}
-      - name: tools
+      - name: configure-common
         configMap:
-          name: tools-{{ include "artemis.fullname" . }}
-      - name: config-override-template
+          name: {{ include "artemis.fullname" . }}-configure-common
+      - name: configure-slave
         configMap:
-          name: {{ include "artemis.fullname" . }}
+          name: {{ include "artemis.fullname" . }}-configure-slave
       - name: data
       {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:
@@ -110,3 +98,4 @@ spec:
       {{- else }}
         emptyDir: {}
       {{- end -}}
+

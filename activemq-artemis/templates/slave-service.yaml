@@ -1,13 +1,10 @@
-
-{{- if .Values.loadbalancer.enabled }}
-
 apiVersion: v1
 kind: Service
 metadata:
   annotations:
     # Make sure DNS is resolvable during initialization.
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
-  name: {{ include "artemis.fullname" . }}
+  name: {{ include "artemis.fullname" . }}-slave
   labels:
 {{ include "artemis.labels.standard" . | indent 4 }}
 spec:
@@ -21,9 +18,7 @@ spec:
   - name: amqp
     port: 5672
     targetPort: amqp
-  type: LoadBalancer
+  clusterIP: None
   selector:
     app: {{ template "artemis.name" . }}
     release: {{ .Release.Name | quote }}
-
-{{- end }}
