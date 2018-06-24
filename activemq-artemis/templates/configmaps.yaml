@@ -1,7 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ include "artemis.fullname" . }}
+  labels:
+{{ include "artemis.labels.standard" . | indent 4 }}
 data:
   template-common.xml: |
     <configuration xmlns="urn:activemq" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
@@ -11,18 +13,19 @@ data:
         <cluster-password>secret</cluster-password>
 
         {{- $name := default .Chart.Name .Values.nameOverride -}}
-        {{- $relname := printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
-        {{- $namespace := .Release.Namespace -}}
+        {{- $fullname := include "artemis.fullname" . -}}
+        {{- $releaseName := printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+        {{- $releaseNamespace := .Release.Namespace -}}
         <connectors>
           {{range $i,$t := until (int .Values.replicas)}}
-            <connector name="{{$relname}}-{{$i}}">tcp://{{$relname}}-{{$i}}.{{$relname}}.{{$namespace}}.svc.cluster.local:61616</connector>
+            <connector name="{{ $fullname }}-{{ $i }}">tcp://{{ $fullname }}-{{ $i }}.{{ $releaseName }}.{{ $releaseNamespace }}.svc.cluster.local:61616</connector>
           {{end}}
         </connectors>
 
         <cluster-connections>
-          <cluster-connection name="{{ .Release.Name }}">
+          <cluster-connection name="{{ $releaseName }}">
             <address>jms</address>
-            <connector-ref>{{$relname}}-0</connector-ref>
+            <connector-ref>{{ $fullname }}-0</connector-ref>
             <retry-interval>500</retry-interval>
             <retry-interval-multiplier>1.1</retry-interval-multiplier>
             <max-retry-interval>5000</max-retry-interval>
@@ -33,9 +36,9 @@ data:
             <max-hops>1</max-hops>
 
             <static-connectors>
-              {{range $i,$t := until (int .Values.replicas)}}
-                <connector-ref>{{$relname}}-{{$i}}</connector-ref>
-              {{end}}
+              {{ range $i,$t := until (int .Values.replicas) }}
+                <connector-ref>{{ $fullname }}-{{ $i }}</connector-ref>
+              {{ end }}
             </static-connectors>
 
          </cluster-connection>
@@ -72,6 +75,10 @@ data:
     </configuration>
 
   configure-cluster.sh: |
+    
+    {{ $name := default .Chart.Name .Values.nameOverride }}
+    {{ $releaseName := printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+
     set -e
     HOST_GROUP_NAME=$(echo ${HOSTNAME} | sed -re 's/(.*)-[0-9]+/\1/')
     HOST_INDEX=$(echo ${HOSTNAME} | sed -re 's/.*-([0-9]+)/\1/')
@@ -100,12 +107,12 @@ data:
       -u "/activemq:configuration/core:core/core:ha-policy/core:replication/core:slave/core:group-name" \
       -v "${GROUP_NAME}" /var/lib/artemis/etc-override/broker-11.xml
     fi
-    
-    echo Setting the connector-ref
+  
+    echo Setting the connector-ref to $(hostname)
     xmlstarlet ed -L \
       -N activemq="urn:activemq" \
       -N core="urn:activemq:core" \
-      -u "/activemq:configuration/core:core/core:cluster-connections/core:cluster-connection[@name='{{ .Release.Name }}']/core:connector-ref" \
+      -u "/activemq:configuration/core:core/core:cluster-connections/core:cluster-connection[@name='{{ $releaseName }}']/core:connector-ref" \
       -v "$(hostname)" /var/lib/artemis/etc-override/broker-10.xml
 
 ---
@@ -113,7 +120,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: tools-{{ template "fullname" . }}
+  name: tools-{{ include "artemis.fullname" . }}
 data:
   is-backup.sh: |
     curl -s http://localhost:8161/jolokia/read/org.apache.activemq.artemis:brokerName=%220.0.0.0%22,module=Core,serviceType=Server,type=Broker/Backup | jq .value

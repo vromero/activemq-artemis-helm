@@ -1,29 +1,28 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ include "artemis.fullname" . }}
+  annotations:
+{{ toYaml .Values.deployment.annotations | indent 4 }}
   labels:
-    app: {{ template "fullname" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
+{{ include "artemis.labels.standard" . | indent 4 }}
 spec:
-  serviceName: {{ template "fullname" . }}
+  serviceName: {{ include "artemis.fullname" . }}
   replicas: {{ .Values.replicas }}
   podManagementPolicy: Parallel
+  revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: {{ template "fullname" . }}
-      chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-      release: "{{ .Release.Name }}"
-      heritage: "{{ .Release.Service }}"    
+      app: {{ template "artemis.name" . }}
+      release: {{ .Release.Name | quote }}    
   template:
     metadata:
+      name: {{ include "artemis.fullname" . }}
+      annotations:
+{{ toYaml .Values.replica.annotations | indent 8 }}
       labels:
-        app: {{ template "fullname" . }}
-        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-        release: "{{ .Release.Name }}"
-        heritage: "{{ .Release.Service }}"
+        app: {{ template "artemis.name" . }}
+        release: {{ .Release.Name | quote }}
     spec:
       strategy:
         type: Recreate
@@ -52,7 +51,7 @@ spec:
           - name: "config-override"
             mountPath: "/var/lib/artemis/etc-override"
       containers:
-      - name: {{ template "fullname" . }}
+      - name: {{ include "artemis.fullname" . }}
         image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
         imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
         resources:
@@ -61,7 +60,7 @@ spec:
         - name: ARTEMIS_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "fullname" . }}
+              name: {{ include "artemis.fullname" . }}
               key: artemis-password
         - name: ARTEMIS_USERNAME
           value: {{ default "artemis" .Values.artemisUser | quote }}
@@ -100,14 +99,14 @@ spec:
         emptyDir: {}
       - name: tools
         configMap:
-          name: tools-{{ template "fullname" . }}
+          name: tools-{{ include "artemis.fullname" . }}
       - name: config-override-template
         configMap:
-          name: {{ template "fullname" . }}
+          name: {{ include "artemis.fullname" . }}
       - name: data
       {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:
-          claimName: {{ template "fullname" . }}
+          claimName: {{ include "artemis.fullname" . }}
       {{- else }}
         emptyDir: {}
       {{- end -}}

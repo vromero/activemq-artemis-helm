@@ -4,19 +4,16 @@ kind: Pod
 metadata:
   annotations:
     "helm.sh/hook": test-success
-  name: "{{ .Release.Name }}-amqp-test"
+  name: {{ include "artemis.fullname" . }}-amqp
   labels:
-    app: {{ template "fullname" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
+{{ include "artemis.labels.standard" . | indent 4 }}
 spec:
   containers:
   - name: {{ .Release.Name }}-amqp-test
     image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
     env:
       - name: ARTEMIS_HOST
-        value: {{ template "fullname" . }}
+        value: {{ include "artemis.fullname" . }}
       - name: ARTEMIS_PORT
         value: "5672"
       - name: ARTEMIS_USER

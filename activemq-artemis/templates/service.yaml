@@ -4,12 +4,9 @@ metadata:
   annotations:
     # Make sure DNS is resolvable during initialization.
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
-  name: {{ template "fullname" . }}
+  name: {{ include "artemis.fullname" . }}
   labels:
-    app: {{ template "fullname" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
+{{ include "artemis.labels.standard" . | indent 4 }}
 spec:
   ports:
   - name: http
@@ -23,7 +20,8 @@ spec:
     targetPort: amqp
   clusterIP: None
   selector:
-    app: {{ template "fullname" . }}
+    app: {{ template "artemis.name" . }}
+    release: {{ .Release.Name | quote }}
 
 ---
 
@@ -35,12 +33,9 @@ metadata:
   annotations:
     # Make sure DNS is resolvable during initialization.
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
-  name: lb-{{ template "fullname" . }}
+  name: lb-{{ include "artemis.fullname" . }}
   labels:
-    app: {{ template "fullname" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
+{{ include "artemis.labels.standard" . | indent 4 }}
 spec:
   ports:
   - name: http
@@ -54,6 +49,7 @@ spec:
     targetPort: amqp
   type: LoadBalancer
   selector:
-    app: {{ template "fullname" . }}
+    app: {{ template "artemis.name" . }}
+    release: {{ .Release.Name | quote }}
 
 {{- end }}

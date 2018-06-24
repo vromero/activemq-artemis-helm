@@ -2,17 +2,15 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ include "artemis.fullname" . }}
   labels:
-    app: {{ template "fullname" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
+    app: {{ include "artemis.fullname" . }}
+    release: {{ .Release.Name | quote }}
   annotations:
   {{- if .Values.persistence.storageClass }}
     volume.beta.kubernetes.io/storage-class: {{ .Values.persistence.storageClass | quote }}
   {{- else }}
-    volume.alpha.kubernetes.io/storage-class: default
+    volume.al pha.kubernetes.io/storage-class: default
   {{- end }}
 spec:
   accessModes:

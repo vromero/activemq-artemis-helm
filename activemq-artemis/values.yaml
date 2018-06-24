@@ -15,7 +15,32 @@ artemisPassword: simetraehcapa
 #imagePullPolicy: IfNotPresent
 imagePullPolicy: Always
 
-replicas: 4
+replicas: 2
+
+# nameOverride replaces the computed chart name with this given name. 
+# nameOverride: 
+
+# namePrefix sets the prefix for the fullname in the template "global prefix + prefix + name + suffix + global suffix"
+# namePrefix:
+
+# nameSuffix sets the suffix for the fullname in the template "global prefix + prefix + name + suffix + global suffix"
+# nameSuffix: 
+
+global:
+# namePrefix sets the global prefix for the fullname in the template "global prefix + prefix + name + suffix + global suffix"
+#   namePrefix: Global prefix
+# nameSuffix sets the global suffix for the fullname in the template "global prefix + prefix + name + suffix + global suffix"
+#   nameSuffix: Global suffix
+
+deployment:
+  ## Artemis Deployment annotations
+  annotations: {}
+  #   name: value
+replica:
+  ## Artemis Replicas annotations
+  annotations: {}
+  ## Read more about kube2iam to provide access to s3 https://github.com/jtblin/kube2iam
+  #   iam.amazonaws.com/role: role-arn
 
 ## Persist data to a persitent volume
 persistence:

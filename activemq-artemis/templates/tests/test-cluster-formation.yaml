@@ -1,6 +1,3 @@
-{{- $name := default .Chart.Name .Values.nameOverride -}}
-{{- $relname := printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
-{{- $namespace := .Release.Namespace -}}
 
 apiVersion: v1
 kind: Pod
@@ -8,25 +5,22 @@ kind: Pod
 metadata:
   annotations:
     "helm.sh/hook": test-success
-  name: "{{ .Release.Name }}-cluster-formation"
+  name: {{ include "artemis.fullname" . }}-cluster-formation
   labels:
-    app: {{ template "fullname" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
+{{ include "artemis.labels.standard" . | indent 4 }}
 spec:
   volumes:
-    - name: tools-{{ template "fullname" . }}-cluster-formation
+    - name: tools-{{ include "artemis.fullname" . }}-cluster-formation
       configMap:
-        name: tools-{{ template "fullname" . }}-cluster-formation
+        name: tools-{{ include "artemis.fullname" . }}-cluster-formation
   containers:
   - name: {{ .Release.Name }}-cluster-formation
     image: "vromero/activemq-artemis:{{ .Values.imageTag }}"
     env:
       - name: ARTEMIS_HOST
-        value: {{$relname}}-0.{{$relname}}.{{$namespace}}.svc.cluster.local
+        value: {{ include "artemis.fullname" . }}-0.{{ .Release.Namespace }}.svc.cluster.local
       - name: ARTEMIS_HOST_SHORT
-        value: {{$relname}}-0
+        value: {{ .Release.Name }}-0
       - name: ARTEMIS_PORT
         value: "8161"
       - name: ARTEMIS_USERNAME
@@ -34,7 +28,7 @@ spec:
       - name: ARTEMIS_PASSWORD
         value: {{ default "" .Values.artemisPassword | quote }}
     volumeMounts:
-      - name: tools-{{ template "fullname" . }}-cluster-formation
+      - name: tools-{{ include "artemis.fullname" . }}-cluster-formation
         mountPath: /opt/tools
     command: ["sh", "/opt/tools/cluster-formed.sh"]
   restartPolicy: Never
@@ -44,7 +38,7 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: tools-{{ template "fullname" . }}-cluster-formation
+  name: tools-{{ include "artemis.fullname" . }}-cluster-formation
 data:
   cluster-formed.sh: |
     MEMBERS="$(curl -sq http://${ARTEMIS_USERNAME}:${ARTEMIS_PASSWORD}@${ARTEMIS_HOST}:${ARTEMIS_PORT}/console/jolokia/read/org.apache.activemq.artemis:broker=%22${ARTEMIS_HOST_SHORT}%22,component=cluster-connections,name=%22{{ .Release.Name }}%22/Topology | jq '.value' | sed -re 's/.*nodes=([0-9]+).*/\1/')"
