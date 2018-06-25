@@ -9,7 +9,6 @@ metadata:
 spec:
   serviceName: {{ include "artemis.fullname" . }}-master
   replicas: {{ .Values.replicas }}
-  podManagementPolicy: Parallel
   revisionHistoryLimit: 10
   selector:
     matchLabels:
