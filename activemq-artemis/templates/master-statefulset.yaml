@@ -14,6 +14,7 @@ spec:
     matchLabels:
       app: {{ template "artemis.name" . }}
       release: {{ .Release.Name | quote }}    
+      component: master
   template:
     metadata:
       name: {{ include "artemis.fullname" . }}
@@ -22,7 +23,29 @@ spec:
       labels:
         app: {{ template "artemis.name" . }}
         release: {{ .Release.Name | quote }}
+        component: master
     spec:
+      affinity:
+        podAntiAffinity:
+        {{- if eq .Values.antiAffinity "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: "kubernetes.io/hostname"
+            labelSelector:
+              matchLabels:
+                app: {{ template "artemis.name" . }}
+                release: {{ .Release.Name | quote }}
+                component: slave
+        {{- else if eq .Values.antiAffinity "soft" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 5
+            podAffinityTerm:
+              topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchLabels:
+                  app: {{ template "artemis.name" . }}
+                  release: {{ .Release.Name | quote }}
+                  component: slave
+        {{- end }}
       strategy:
         type: Recreate
       initContainers:

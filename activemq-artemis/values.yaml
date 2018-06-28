@@ -19,6 +19,9 @@ artemisPassword: simetraehcapa
 
 replicas: 2
 
+# antiAffinity sets an anti affinity policy between masters and slaves as either hard or soft, default is hard
+antiAffinity: "soft"
+
 # nameOverride replaces the computed chart name with this given name. 
 # nameOverride: 
 

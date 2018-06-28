@@ -9,12 +9,12 @@ metadata:
 spec:
   serviceName: {{ include "artemis.fullname" . }}-slave
   replicas: {{ .Values.replicas }}
-  podManagementPolicy: Parallel
   revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: {{ template "artemis.name" . }}
       release: {{ .Release.Name | quote }}    
+      component: slave
   template:
     metadata:
       name: {{ include "artemis.fullname" . }}
@@ -23,6 +23,7 @@ spec:
       labels:
         app: {{ template "artemis.name" . }}
         release: {{ .Release.Name | quote }}
+        component: slave
     spec:
       strategy:
         type: Recreate
