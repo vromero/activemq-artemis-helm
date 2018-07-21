@@ -1,9 +1,9 @@
-
 ## 1. What is ActiveMQ Artemis?
 
 [Apache ActiveMQ Artemis](https://activemq.apache.org/artemis) is an open source project to build a multi-protocol, embeddable, very high performance, clustered, asynchronous messaging system. Apache ActiveMQ Artemis is an example of Message Oriented Middleware (MoM).
 
 ![logo](https://activemq.apache.org/artemis/images/activemq-logo.png)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvromero%2Factivemq-artemis-helm.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvromero%2Factivemq-artemis-helm?ref=badge_shield)
 
 ## 2. What is the ActiveMQ Artemis Helm Chart
 
@@ -116,3 +116,7 @@ By default a PersistentVolumeClaim is created and mounted into the `/var/lib/art
 you can change the values.yaml to disable persistence and use an emptyDir instead.
 
 > *"An emptyDir volume is first created when a Pod is assigned to a Node, and exists as long as that Pod is running on that node. When a Pod is removed from a node for any reason, the data in the emptyDir is deleted forever."*
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvromero%2Factivemq-artemis-helm.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvromero%2Factivemq-artemis-helm?ref=badge_large)
