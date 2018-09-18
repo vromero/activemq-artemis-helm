@@ -6,7 +6,7 @@ kind: Service
 metadata:
   annotations:
     # Make sure DNS is resolvable during initialization.
-    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "false"
   name: {{ include "artemis.fullname" . }}
   labels:
 {{ include "artemis.labels.standard" . | indent 4 }}
@@ -25,5 +25,7 @@ spec:
   selector:
     app: {{ template "artemis.name" . }}
     release: {{ .Release.Name | quote }}
+  sessionAffinity: "ClientIP"
+
 
 {{- end }}

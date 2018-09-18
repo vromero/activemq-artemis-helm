@@ -77,6 +77,8 @@ spec:
           value: {{ default "artemis" .Values.artemisUser | quote }}
         - name: ARTEMIS_PERF_JOURNAL
           value: {{ default "AUTO" .Values.persistence.testJournalPerformance | quote }}
+        - name: ENABLE_JMX_EXPORTER
+          value: "true"
         ports:
         - name: http
           containerPort: 8161
@@ -114,10 +116,17 @@ spec:
       - name: configure-master
         configMap:
           name: {{ include "artemis.fullname" . }}-configure-master
+{{- if .Values.persistence.enabled }}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ {{ .Values.persistence.accessMode | quote }} ]
+      storageClassName: {{ .Values.persistence.storageClass | quote }}
+      resources:
+        requests:
+          storage: {{ .Values.persistence.size }}
+  {{- else}}
       - name: data
-      {{- if .Values.persistence.enabled }}
-        persistentVolumeClaim:
-          claimName: {{ include "artemis.fullname" . }}
-      {{- else }}
         emptyDir: {}
-      {{- end -}}
+  {{- end}}

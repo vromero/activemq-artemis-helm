@@ -7,6 +7,7 @@ metadata:
   name: {{ include "artemis.fullname" . }}-master
   labels:
 {{ include "artemis.labels.standard" . | indent 4 }}
+    component: artemis-node
 spec:
   ports:
   - name: http
@@ -18,7 +19,11 @@ spec:
   - name: amqp
     port: 5672
     targetPort: amqp
+  - name: jmx
+    port: 9494
+    targetPort: jmxexporter
   clusterIP: None
   selector:
     app: {{ template "artemis.name" . }}
     release: {{ .Release.Name | quote }}
+    component: master
