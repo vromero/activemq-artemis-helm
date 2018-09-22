@@ -5,7 +5,7 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    # Make sure DNS is resolvable during initialization.
+    # Exclude unready slave nodes from DNS
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "false"
   name: {{ include "artemis.fullname" . }}
   labels:
