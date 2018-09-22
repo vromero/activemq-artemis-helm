@@ -17,33 +17,35 @@ data:
         {{- $fullname := include "artemis.fullname" . -}}
         {{- $releaseName := printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
         {{- $releaseNamespace := .Release.Namespace -}}
+
         <connectors>
           {{ range $i,$t := until (int .Values.replicas) }}
-            {{ range tuple "master" "slave" }}
-              <connector name="{{ $fullname }}-{{ . }}-{{ $i }}">tcp://{{ $fullname }}-{{ . }}-{{ $i }}.{{ $releaseName }}-{{ . }}.{{ $releaseNamespace }}.svc.cluster.local:61616</connector>  
-            {{ end }}
+          {{ range tuple "master" "slave" }}
+          <connector name="{{ $fullname }}-{{ . }}-{{ $i }}">tcp://{{ $fullname }}-{{ . }}-{{ $i }}.{{ $releaseName }}-{{ . }}.{{ $releaseNamespace }}.svc.cluster.local:61616</connector>
+          {{ end }}
           {{end}}
         </connectors>
+
 
         <cluster-connections>
           <cluster-connection name="{{ $releaseName }}">
             <address>jms</address>
-            <connector-ref>{{ $fullname }}-0</connector-ref>
+            <connector-ref>netty-connector</connector-ref>
             <retry-interval>500</retry-interval>
             <retry-interval-multiplier>1.1</retry-interval-multiplier>
             <max-retry-interval>5000</max-retry-interval>
             <initial-connect-attempts>-1</initial-connect-attempts>
             <reconnect-attempts>-1</reconnect-attempts>
 
-            <message-load-balancing>OFF</message-load-balancing>
+            <message-load-balancing>ON_DEMAND</message-load-balancing>
             <max-hops>1</max-hops>
 
             <static-connectors>
-              {{ range $i,$t := until (int .Values.replicas) }}
-                {{ range tuple "master" "slave" }}
-                  <connector-ref>{{ $fullname }}-{{ . }}-{{ $i }}</connector-ref>
-                {{ end }}
+            {{ range $i,$t := until (int .Values.replicas) }}
+              {{ range tuple "master" "slave" }}
+                <connector-ref>{{ $fullname }}-{{ . }}-{{ $i }}</connector-ref>
               {{ end }}
+            {{ end }}
             </static-connectors>
 
          </cluster-connection>

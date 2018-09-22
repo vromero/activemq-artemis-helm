@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    # matches ServiceMonitor selector in Prometheus
+    prometheus: kube-prometheus
+  name: artemis-exporter
+  # has to be in the same namespace as Prometheus
+  namespace: {{ .Values.prometheus.namespace }}
+spec:
+  endpoints:
+  - port: jmx
+    interval: 5s
+  jobLabel: artemis-messaging
+  selector:
+    matchLabels:
+      app: activemq-artemis
+      component: artemis-node
+  namespaceSelector:
+    any: true
