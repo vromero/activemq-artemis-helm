@@ -1,20 +1,21 @@
+{{ if .Values.prometheus.operator.enabled }} 
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
+  name: {{ include "artemis.fullname" . }}-monitor
+  namespace: {{ .Values.prometheus.operator.serviceMonitor.namespace }}
   labels:
-    # matches ServiceMonitor selector in Prometheus
-    prometheus: kube-prometheus
-  name: artemis-exporter
-  # has to be in the same namespace as Prometheus
-  namespace: {{ .Values.prometheus.namespace }}
+{{ toYaml .Values.prometheus.operator.serviceMonitor.selector | indent 4 }}
 spec:
   endpoints:
-  - port: jmx
-    interval: 5s
-  jobLabel: artemis-messaging
+  - port: jmx-exporter
+    interval: {{ .Values.prometheus.jmx.interval }}
+  {{- if .Values.prometheus.jmx.scrapeTimeout }}
+    scrapeTimeout: {{ .Values.prometheus.jmx.scrapeTimeout }}
+  {{- end }}
   selector:
     matchLabels:
-      app: activemq-artemis
-      component: artemis-node
+{{ include "artemis.labels.standard" . | indent 6 }}
   namespaceSelector:
     any: true
+{{ end }}
