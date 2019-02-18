@@ -64,7 +64,7 @@ spec:
       containers:
       - name: {{ include "artemis.fullname" . }}
         image: {{ template "artemis.image" . }}
-        imagePullPolicy: {{ .Values.image.imagePullPolicy | quote }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}
         env:
