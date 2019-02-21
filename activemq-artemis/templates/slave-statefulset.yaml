@@ -75,7 +75,7 @@ spec:
           periodSeconds: 10
         readinessProbe:
           tcpSocket:
-            port: core
+            port: http
           initialDelaySeconds: 10
           periodSeconds: 10
         volumeMounts:
@@ -102,7 +102,9 @@ spec:
       name: data
     spec:
       accessModes: [ {{ .Values.persistence.accessMode | quote }} ]
+{{- if .Values.persistence.storageClass }}
       storageClassName: {{ .Values.persistence.storageClass | quote }}
+{{- end }}
       resources:
         requests:
           storage: {{ .Values.persistence.size }}

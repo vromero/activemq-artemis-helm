@@ -64,7 +64,7 @@ spec:
       containers:
       - name: {{ include "artemis.fullname" . }}
         image: {{ template "artemis.image" . }}
-        imagePullPolicy: {{ .Values.image.imagePullPolicy | quote }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}
         env:
@@ -122,7 +122,9 @@ spec:
       name: data
     spec:
       accessModes: [ {{ .Values.persistence.accessMode | quote }} ]
+{{- if .Values.persistence.storageClass }}
       storageClassName: {{ .Values.persistence.storageClass | quote }}
+{{- end }}
       resources:
         requests:
           storage: {{ .Values.persistence.size }}
