@@ -15,7 +15,7 @@ data:
             <master>
               <group-name>to-be-set-by-configure-cluster.sh</group-name>
               <!--we need this for auto failback-->
-              <check-for-live-server>false</check-for-live-server>
+              <check-for-live-server>true</check-for-live-server>
             </master>
           </replication>
         </ha-policy>

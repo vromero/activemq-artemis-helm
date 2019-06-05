@@ -13,6 +13,8 @@ data:
           <replication>
             <slave>
               <group-name>to-be-set-by-configure-cluster.sh</group-name>
+              <allow-failback>true</allow-failback>
+              <failback-delay>5000</failback-delay>
             </slave>
           </replication>
         </ha-policy>
