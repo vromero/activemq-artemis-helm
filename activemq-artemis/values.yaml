@@ -12,6 +12,9 @@ image:
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   pullSecrets: []
 
+# disableSecurity disables activeMQ security features
+disableSecurity: false
+
 # artemisUser sets the artemis admin user name
 artemisUser: artemis
 # artemisPassword sets the artemis admin user password

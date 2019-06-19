@@ -88,6 +88,7 @@ The following tables lists the configurable parameters of the MySQL chart and th
 | `persistence.testJournalPerformance` | See docker image docs                 | `AUTO`                                                     |
 | `resources.request.memory`           | Memory resource requests/limits       | `256Mi`                                                    |
 | `resources.request.cpu`              | CPU/Memory resource requests/limits   | `100m`                                                     |
+| `disableSecurity`                    | Disables activeMQ security features   | `false`                                                    |
 
 Some of the parameters above map to the env variables defined in the [vromero's ActiveMQ Artemis image](https://hub.docker.com/r/vromero/activemq-artemis/) refer to it for values, meaning, etc.
 
