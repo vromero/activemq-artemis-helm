@@ -7,7 +7,7 @@ entries:
     digest: 9749d3332e2163bb441d4fffe75184f179c4515dfadcd6eec2dc58c3f52a175c
     engine: gotpl
     home: https://activemq.apache.org/artemis/
-    icon: https://activemq.apache.org/artemis/images/activemq-logo.png
+    icon: https://activemq.apache.org/assets/img/activemq_logo_icon.png
     keywords:
     - activemq
     - artemis
