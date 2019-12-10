@@ -3,7 +3,7 @@
 
 [Apache ActiveMQ Artemis](https://activemq.apache.org/artemis) is an open source project to build a multi-protocol, embeddable, very high performance, clustered, asynchronous messaging system. Apache ActiveMQ Artemis is an example of Message Oriented Middleware (MoM).
 
-![logo](https://activemq.apache.org/artemis/images/activemq-logo.png)
+![logo](https://raw.githubusercontent.com/apache/activemq-artemis/master/docs/user-manual/en/images/artemis-logo.png)
 
 ## 2. What is the ActiveMQ Artemis Helm Chart
 
