@@ -11,6 +11,8 @@ spec:
   replicas: {{ .Values.replicas }}
   podManagementPolicy: "Parallel"
   revisionHistoryLimit: 10
+  updateStrategy:
+    type: OnDelete
   selector:
     matchLabels:
       app: {{ template "artemis.name" . }}
@@ -26,13 +28,11 @@ spec:
         release: {{ .Release.Name | quote }}
         component: slave
     spec:
-      strategy:
-        type: Recreate
+      imagePullSecrets: {{ toYaml .Values.image.pullSecrets }}
       initContainers:
       - name: configure-cluster
         image: {{ template "artemis.image" . }}
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
-        imagePullSecrets: {{ toYaml .Values.image.pullSecrets }}
         command: ["/bin/sh", "/opt/configure-slave/configure-cluster.sh"]
         volumeMounts:
           - name: config-override
