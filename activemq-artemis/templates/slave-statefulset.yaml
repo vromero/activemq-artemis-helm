@@ -48,6 +48,10 @@ spec:
         resources:
 {{ toYaml .Values.resources | indent 10 }}
         env:
+{{- if .Values.disableSecurity }}
+        - name: DISABLE_SECURITY
+          value: "true"
+{{- else }}
         - name: ARTEMIS_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -55,6 +59,7 @@ spec:
               key: artemis-password
         - name: ARTEMIS_USERNAME
           value: {{ default "artemis" .Values.artemisUser | quote }}
+{{- end }}
         - name: ARTEMIS_PERF_JOURNAL
           value: {{ default "AUTO" .Values.persistence.testJournalPerformance | quote }}
         - name: ENABLE_JMX_EXPORTER
