@@ -72,6 +72,11 @@ resources:
 loadbalancer:
   enabled: true
 
+# podSecurityContext allows setting security context for the pod: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+# podSecurityContext:
+# containerSecurityContext allows setting security context for the container: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+# containerSecurityContext:
+
 ## Prometheus Exporters / Metrics
 ##
 prometheus:

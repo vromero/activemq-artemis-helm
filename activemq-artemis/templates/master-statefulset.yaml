@@ -10,8 +10,6 @@ spec:
   serviceName: {{ include "artemis.fullname" . }}-master
   replicas: {{ .Values.replicas }}
   revisionHistoryLimit: 10
-  updateStrategy:
-    type: OnDelete
   selector:
     matchLabels:
       app: {{ template "artemis.name" . }}
@@ -27,6 +25,8 @@ spec:
         release: {{ .Release.Name | quote }}
         component: master
     spec:
+      securityContext:
+{{ toYaml .Values.podSecurityContext | indent 8 }}
       affinity:
         podAntiAffinity:
         {{- if eq .Values.antiAffinity "hard" }}
@@ -48,7 +48,6 @@ spec:
                   release: {{ .Release.Name | quote }}
                   component: slave
         {{- end }}
-      imagePullSecrets: {{ toYaml .Values.image.pullSecrets }}
       initContainers:
       - name: configure-cluster
         image: {{ template "artemis.image" . }}
@@ -64,7 +63,7 @@ spec:
       containers:
       - name: {{ include "artemis.fullname" . }}
         image: {{ template "artemis.image" . }}
-        imagePullPolicy: {{ .Values.image.imagePullPolicy | quote }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}
         env:
@@ -126,7 +125,7 @@ spec:
       resources:
         requests:
           storage: {{ .Values.persistence.size }}
-  {{- else}}
+{{- else }}
       - name: data
         emptyDir: {}
-  {{- end}}
+{{- end }}

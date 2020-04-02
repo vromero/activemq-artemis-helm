@@ -11,8 +11,6 @@ spec:
   replicas: {{ .Values.replicas }}
   podManagementPolicy: "Parallel"
   revisionHistoryLimit: 10
-  updateStrategy:
-    type: OnDelete
   selector:
     matchLabels:
       app: {{ template "artemis.name" . }}
@@ -28,7 +26,8 @@ spec:
         release: {{ .Release.Name | quote }}
         component: slave
     spec:
-      imagePullSecrets: {{ toYaml .Values.image.pullSecrets }}
+      securityContext:
+{{ toYaml .Values.podSecurityContext | indent 8 }}
       initContainers:
       - name: configure-cluster
         image: {{ template "artemis.image" . }}
@@ -106,7 +105,7 @@ spec:
       resources:
         requests:
           storage: {{ .Values.persistence.size }}
-{{- else}}
+{{- else }}
       - name: data
         emptyDir: {}
 {{- end}}
