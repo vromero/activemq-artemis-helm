@@ -78,4 +78,13 @@ Return the proper image values
 {{- printf "%s/%s:%s" $registryName $repositoryName $tag -}}
 {{- end -}}
 
-
+{{- /*
+artemis.secretName prints the name of the secret to use for artemis password
+*/ -}}
+{{- define "artemis.secretName" -}}
+{{- if .Values.existingSecret -}}
+{{ .Values.existingSecret }}
+{{- else -}}
+{{ include "artemis.fullname" . }}
+{{- end -}}
+{{- end -}}

@@ -71,7 +71,7 @@ spec:
         - name: ARTEMIS_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ include "artemis.fullname" . }}
+              name: {{ include "artemis.secretName" . }}
               key: artemis-password
         - name: ARTEMIS_USERNAME
           value: {{ default "artemis" .Values.artemisUser | quote }}

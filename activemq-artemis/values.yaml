@@ -17,6 +17,9 @@ artemisUser: artemis
 # artemisPassword sets the artemis admin user password
 artemisPassword: simetraehcapa
 
+# existingSecret uses an preexisting secret for the artemis password. Secret must contain the key 'artemisPassword'
+# existingSecret: 
+
 replicas: 2
 
 # antiAffinity sets an anti affinity policy between masters and slaves as either hard or soft, default is hard
