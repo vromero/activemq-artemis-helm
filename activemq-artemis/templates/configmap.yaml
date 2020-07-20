@@ -29,7 +29,6 @@ data:
 
         <cluster-connections>
           <cluster-connection name="{{ $releaseName }}">
-            <address>jms</address>
             <connector-ref>netty-connector</connector-ref>
             <retry-interval>500</retry-interval>
             <retry-interval-multiplier>1.1</retry-interval-multiplier>
