@@ -8,6 +8,7 @@ data:
 
   template-common.xml: |
     <configuration xmlns="urn:activemq" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+
       <core xmlns="urn:activemq:core" xsi:schemaLocation="urn:activemq:core ">
 
         <cluster-user>exampleUser</cluster-user>
@@ -50,6 +51,99 @@ data:
 
          </cluster-connection>
        </cluster-connections>
+
+    <!--predefined queues-->
+        <queues>
+            <queue name="jms:queue:Garmin.QueueGarminData15min_Batch_0">
+                <address>jms.queue.selectorQueue</address>
+                <filter string="color='red'"/>
+                <durable>true</durable>
+            </queue>
+            <queue name="jms:queue:Garmin.QueueGarminData15min_Batch_0">
+                <address>jms.queue.selectorQueue</address>
+                <filter string="color='red'"/>
+                <durable>true</durable>
+            </queue>
+            <queue name="jms:queue:Garmin.QueueGarminData15min_Batch_1">
+                <address>jms.queue.selectorQueue</address>
+                <filter string="color='red'"/>
+                <durable>true</durable>
+            </queue>
+            <queue name="jms:queue:Garmin.QueueGarminData15min_Batch_2">
+                <address>jms.queue.selectorQueue</address>
+                <filter string="color='red'"/>
+                <durable>true</durable>
+            </queue>
+            <queue name="jms:queue:Garmin.QueueGarminData15min_Batch_3">
+                <address>jms.queue.selectorQueue</address>
+                <filter string="color='red'"/>
+                <durable>true</durable>
+            </queue>
+            <queue name="jms:queue:Garmin.QueueGarminData24h_Batch_Monday">
+                <address>jms.queue.selectorQueue</address>
+                <filter string="color='red'"/>
+                <durable>true</durable>
+            </queue>
+            <queue name="jms:queue:Garmin.QueueGarminData24h_Batch_Tuesday">
+                <address>jms.queue.selectorQueue</address>
+                <filter string="color='red'"/>
+                <durable>true</durable>
+            </queue>
+            <queue name="jms:queue:Garmin.QueueGarminData24h_Batch_Wednesday">
+                <address>jms.queue.selectorQueue</address>
+                <filter string="color='red'"/>
+                <durable>true</durable>
+            </queue>
+            <queue name="jms:queue:Garmin.QueueGarminData24h_Batch_Thursday">
+                <address>jms.queue.selectorQueue</address>
+                <filter string="color='red'"/>
+                <durable>true</durable>
+            </queue>
+            <queue name="jms:queue:Garmin.QueueGarminData24h_Batch_Friday">
+                <address>jms.queue.selectorQueue</address>
+                <filter string="color='red'"/>
+                <durable>true</durable>
+            </queue>
+            <queue name="jms:queue:Garmin.QueueGarminData24h_Batch_Saturday">
+                <address>jms.queue.selectorQueue</address>
+                <filter string="color='red'"/>
+                <durable>true</durable>
+            </queue>
+        </queue>
+        <queue name="jms:queue:Garmin.QueueGarminData24h_Batch_Sunday">
+            <address>jms.queue.selectorQueue</address>
+            <filter string="color='red'"/>
+            <durable>true</durable>
+        </queue>
+    </queues>
+
+    <security-settings>
+        <!--security for queues-->
+        <security-setting match="exampleQueue">
+            <permission roles="guest" type="createDurableQueue"/>
+            <permission roles="guest" type="deleteDurableQueue"/>
+            <permission roles="guest" type="createNonDurableQueue"/>
+            <permission roles="guest" type="deleteNonDurableQueue"/>
+            <permission roles="guest" type="consume"/>
+            <permission roles="guest" type="send"/>
+        </security-setting>
+
+        <!--security for notification queue-->
+        <security-setting match="notificationsTopic">
+            <permission roles="guest" type="consume"/>
+            <permission roles="guest" type="createNonDurableQueue"/>
+            <permission roles="guest" type="deleteNonDurableQueue"/>
+        </security-setting>
+
+        <!-- security settings for JMS temporary queue -->
+        <security-setting match="queuetempjms.*">
+            <permission roles="guest" type="createNonDurableQueue"/>
+            <permission roles="guest" type="deleteNonDurableQueue"/>
+            <permission roles="guest" type="consume"/>
+            <permission roles="guest" type="send"/>
+        </security-setting>
+    </security-settings>
+
       </core>
     </configuration>
 
