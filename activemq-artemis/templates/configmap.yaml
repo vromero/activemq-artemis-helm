@@ -27,7 +27,6 @@ data:
           {{end}}
         </connectors>
 
-
         <cluster-connections>
           <cluster-connection name="{{ $releaseName }}">
             <address>jms</address>
@@ -119,28 +118,13 @@ data:
 
     <security-settings>
         <!--security for queues-->
-        <security-setting match="exampleQueue">
-            <permission roles="guest" type="createDurableQueue"/>
-            <permission roles="guest" type="deleteDurableQueue"/>
-            <permission roles="guest" type="createNonDurableQueue"/>
-            <permission roles="guest" type="deleteNonDurableQueue"/>
-            <permission roles="guest" type="consume"/>
-            <permission roles="guest" type="send"/>
-        </security-setting>
-
-        <!--security for notification queue-->
-        <security-setting match="notificationsTopic">
-            <permission roles="guest" type="consume"/>
-            <permission roles="guest" type="createNonDurableQueue"/>
-            <permission roles="guest" type="deleteNonDurableQueue"/>
-        </security-setting>
-
-        <!-- security settings for JMS temporary queue -->
-        <security-setting match="queuetempjms.*">
-            <permission roles="guest" type="createNonDurableQueue"/>
-            <permission roles="guest" type="deleteNonDurableQueue"/>
-            <permission roles="guest" type="consume"/>
-            <permission roles="guest" type="send"/>
+        <security-setting match="Garmin.#">
+           <permission type="createDurableQueue" roles={{ .Values.securityPolicy.createDurableQueueRoles | quote}}/>
+           <permission type="deleteDurableQueue" roles={{ .Values.securityPolicy.deleteDurableQueueRoles | quote}}}/>
+           <permission type="createNonDurableQueue" roles={{ .Values.securityPolicy.createNonDurableQueueRoles | quote}}/>
+           <permission type="deleteNonDurableQueue" roles={{ .Values.securityPolicy.deleteNonDurableQueueRoles | quote}}}/>
+           <permission type="send" roles={{ .Values.securityPolicy.sendRoles | quote}}/>
+           <permission type="consume" roles={{.Values.securityPolicy.consumeRoles | quote}}/>
         </security-setting>
     </security-settings>
 

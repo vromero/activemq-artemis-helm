@@ -101,3 +101,21 @@ prometheus:
       selector:
         prometheus: kube-prometheus
 
+securityPolicy:
+  ## createDurableQueue. This permission allows the user to create a durable queue under matching addresses.
+  createDurableQueueRoles: admin
+  ## deleteDurableQueue. This permission allows the user to delete a durable queue under matching addresses.
+  deleteDurableQueueRoles: admin
+  ## createNonDurableQueue. This permission allows the user to create a non-durable queue under matching addresses.
+  createNonDurableQueueRoles: admin
+  ## deleteNonDurableQueue. This permission allows the user to delete a non-durable queue under matching addresses.
+  deleteNonDurableQueueRoles: admin
+  ## send. This permission allows the user to send a message to matching addresses.
+  sendRoles: admin, guest
+  ## consume. This permission allows the user to consume a message from a queue bound to matching addresses.
+  consumeRoles: admin, guest
+  ## manage. This permission allows the user to invoke management operations by sending management messages to the management address.
+  manageRoles: admin
+
+
+
