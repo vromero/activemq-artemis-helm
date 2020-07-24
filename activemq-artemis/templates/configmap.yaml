@@ -36,6 +36,7 @@ data:
             <max-retry-interval>5000</max-retry-interval>
             <initial-connect-attempts>-1</initial-connect-attempts>
             <reconnect-attempts>-1</reconnect-attempts>
+            <forward-when-no-consumers>true</forward-when-no-consumers>
 
             <message-load-balancing>ON_DEMAND</message-load-balancing>
             <max-hops>1</max-hops>
@@ -127,6 +128,13 @@ data:
            <permission type="consume" roles={{.Values.securityPolicy.consumeRoles | quote}}/>
         </security-setting>
     </security-settings>
+
+    <address-settings>
+    <!--enable instant (no delay) redistribution for all JMS queues and topic subscriptions-->
+      <address-setting match="jms.#">
+        <redistribution-delay>0</redistribution-delay>
+      </address-setting>
+    </address-settings>
 
       </core>
     </configuration>
