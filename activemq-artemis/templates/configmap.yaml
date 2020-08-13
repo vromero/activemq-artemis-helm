@@ -18,12 +18,17 @@ data:
         {{- $releaseName := printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
         {{- $releaseNamespace := .Release.Namespace -}}
 
+        {{- $connectorTypes := dict "master" "" }}
+        {{- if .Values.slaveReplication }}
+          {{- $_ := set $connectorTypes "slave" "" }}
+        {{- end }}
+
         <connectors>
-          {{ range $i,$t := until (int .Values.replicas) }}
-          {{ range tuple "master" "slave" }}
+          {{- range $i,$t := until (int .Values.replicas) }}
+            {{- range tuple "master" "slave" }}
           <connector name="{{ $fullname }}-{{ . }}-{{ $i }}">tcp://{{ $fullname }}-{{ . }}-{{ $i }}.{{ $releaseName }}-{{ . }}.{{ $releaseNamespace }}.svc.cluster.local:61616</connector>
-          {{ end }}
-          {{end}}
+            {{- end }}
+          {{- end}}
         </connectors>
 
 
@@ -40,11 +45,11 @@ data:
             <max-hops>1</max-hops>
 
             <static-connectors>
-            {{ range $i,$t := until (int .Values.replicas) }}
-              {{ range tuple "master" "slave" }}
+            {{- range $i,$t := until (int .Values.replicas) }}
+              {{- range (keys $connectorTypes) }}
                 <connector-ref>{{ $fullname }}-{{ . }}-{{ $i }}</connector-ref>
-              {{ end }}
-            {{ end }}
+              {{- end }}
+            {{- end }}
             </static-connectors>
 
          </cluster-connection>

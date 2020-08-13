@@ -18,6 +18,8 @@ artemisUser: artemis
 artemisPassword: simetraehcapa
 
 replicas: 2
+# slaveReplication: start backup brokers for failover
+slaveReplication: true
 
 # antiAffinity sets an anti affinity policy between masters and slaves as either hard or soft, default is hard
 antiAffinity: "soft"
