@@ -98,6 +98,10 @@ spec:
             port: core
           initialDelaySeconds: 10
           periodSeconds: 10
+        {{- if .Values.containerSecurityContext }}
+        securityContext:
+{{ toYaml .Values.containerSecurityContext | indent 10 }}
+        {{- end }}
         volumeMounts:
         - name: data
           mountPath: /var/lib/artemis/data
@@ -107,6 +111,10 @@ spec:
           mountPath: /opt/configure-common
         - name: configure-master
           mountPath: /opt/configure-master
+      {{- if .Values.podSecurityContext }}
+      securityContext:
+{{ toYaml .Values.podSecurityContext | indent 8 }}
+      {{- end }}
       volumes:
       - name: config-override
         emptyDir: {}
@@ -126,7 +134,7 @@ spec:
       resources:
         requests:
           storage: {{ .Values.persistence.size }}
-  {{- else}}
+{{- else }}
       - name: data
         emptyDir: {}
-  {{- end}}
+{{- end }}
