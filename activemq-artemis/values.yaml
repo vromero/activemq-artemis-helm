@@ -17,7 +17,13 @@ artemisUser: artemis
 # artemisPassword sets the artemis admin user password
 artemisPassword: simetraehcapa
 
+# number of master nodes in the cluster
 replicas: 2
+
+# number of slaves nodes in the cluster
+slaves:
+  enabled: true
+  replicas: 2
 
 # antiAffinity sets an anti affinity policy between masters and slaves as either hard or soft, default is hard
 antiAffinity: "soft"
@@ -32,6 +38,8 @@ antiAffinity: "soft"
 # nameSuffix: 
 
 global:
+  # define default kubernetes default internal cluster FQDN
+  kubernetesDNSDomain: cluster.local
 # namePrefix sets the global prefix for the fullname in the template "global prefix + prefix + name + suffix + global suffix"
 #   namePrefix: Global prefix
 # nameSuffix sets the global suffix for the fullname in the template "global prefix + prefix + name + suffix + global suffix"
