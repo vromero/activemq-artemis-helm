@@ -1,3 +1,4 @@
+{{ if .Values.slaves.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -27,3 +28,4 @@ spec:
     app: {{ template "artemis.name" . }}
     release: {{ .Release.Name | quote }}
     component: slave
+{{- end }}
