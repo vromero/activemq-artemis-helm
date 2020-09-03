@@ -32,19 +32,11 @@ jobs:
       run: |
         git config user.name "$GITHUB_ACTOR"
         git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-
-    #- name: Copy chart to charts folder
-    #  run: |
-    #    mkdir charts
-    #    cp -r activemq-artemis charts/activemq-artemis
-
-    #- name: show folders
-    #  run: ls -R
         
     - name: Run chart-releaser
       uses: helm/chart-releaser-action@v1.0.0
       env:
         CR_TOKEN: "${{ secrets.CR_TOKEN }}"
       with: 
-        charts_repo_url: https://bigga94.github.io/activemq-artemis-helm
+        charts_repo_url: https://vromero.github.io/activemq-artemis-helm/
         charts_dir: stable
