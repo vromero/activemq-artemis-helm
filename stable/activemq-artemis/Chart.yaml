@@ -1,5 +1,5 @@
 name: activemq-artemis
-version: 0.0.1
+version: 0.0.2
 appVersion: 2.6.2
 description: a multi-protocol, embeddable, very high performance, clustered, asynchronous messaging system.
 keywords:
@@ -11,7 +11,7 @@ keywords:
 - jms
 - mqtt
 home: https://activemq.apache.org/artemis/
-icon: https://activemq.apache.org/artemis/images/activemq-logo.png
+icon: https://activemq.apache.org/assets/img/activemq_logo_icon.png
 sources:
 - https://github.com/kubernetes/charts
 - https://github.com/apache/activemq-artemis
