@@ -39,7 +39,7 @@ antiAffinity: "soft"
 
 global:
   # define default kubernetes internal cluster FQDN
-  kubernetesDNSDomain: cluster.local
+  clusterDomain: cluster.local
 # namePrefix sets the global prefix for the fullname in the template "global prefix + prefix + name + suffix + global suffix"
 #   namePrefix: Global prefix
 # nameSuffix sets the global suffix for the fullname in the template "global prefix + prefix + name + suffix + global suffix"

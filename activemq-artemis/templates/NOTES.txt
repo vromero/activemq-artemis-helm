@@ -8,7 +8,7 @@ ActiveMQ Artemis can be accessed via ports:
 
 On the following DNS name from within your cluster:
 
- - {{ include "artemis.fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.global.kubernetesDNSDomain }}
+ - {{ include "artemis.fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.global.clusterDomain }}
 
 To get your password run:
 

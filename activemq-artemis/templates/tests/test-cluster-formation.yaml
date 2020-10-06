@@ -20,7 +20,7 @@ spec:
     imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
     env:
       - name: ARTEMIS_HOST
-        value: {{ include "artemis.fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.global.kubernetesDNSDomain }}
+        value: {{ include "artemis.fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.global.clusterDomain }}
       - name: ARTEMIS_PORT
         value: "8161"
       - name: ARTEMIS_USERNAME

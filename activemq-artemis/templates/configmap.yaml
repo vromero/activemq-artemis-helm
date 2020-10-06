@@ -21,7 +21,7 @@ data:
         <connectors>
           {{ range $i,$t := until (int .Values.replicas) }}
           {{ range tuple "master" "slave" }}
-          <connector name="{{ $fullname }}-{{ . }}-{{ $i }}">tcp://{{ $fullname }}-{{ . }}-{{ $i }}.{{ $releaseName }}-{{ . }}.{{ $releaseNamespace }}.svc.{{ $.Values.global.kubernetesDNSDomain }}:61616</connector>
+          <connector name="{{ $fullname }}-{{ . }}-{{ $i }}">tcp://{{ $fullname }}-{{ . }}-{{ $i }}.{{ $releaseName }}-{{ . }}.{{ $releaseNamespace }}.svc.{{ $.Values.global.clusterDomain }}:61616</connector>
           {{ end }}
           {{end}}
         </connectors>
