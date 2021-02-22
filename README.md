@@ -25,7 +25,7 @@ active master.
 
 ## 3. Prerequisites
 
-- Kubernetes 19+ with Beta APIs enabled
+- Kubernetes 1.9+ with Beta APIs enabled
 - PV provisioner support in the underlying infrastructure
 
 ## 4. Installing the Chart
